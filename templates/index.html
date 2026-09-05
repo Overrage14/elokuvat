@@ -3,9 +3,12 @@
 {% block title %}Elokuvatietokanta{% endblock %}
 
 {% block content %}
-<h2>Tervetuloa elokuvatietokantaan</h2>
+<h2>Elokuvat</h2>
 
-<p>
-  Tähän sovellukseen voi lisätä elokuvia ja arvostella niitä.
-</p>
+{% for movie in movies %}
+<div class="movie">
+  <a href="/movie/{{ movie.id }}">{{ movie.title }}</a> ({{ movie.year }}) <br />
+  Lisännyt: <a href="/user/{{ movie.user_id }}">{{ movie.username }}</a>
+</div>
+{% endfor %}
 {% endblock %}
