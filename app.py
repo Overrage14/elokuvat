@@ -38,8 +38,8 @@ def validate_movie_data():
         flash("VIRHE: lisää elokuvan nimi (enintään 50 merkkiä)")
         return None
     year = request.form["year"]
-    if not re.search("^[0-9]{4}$", year):
-        flash("VIRHE: lisää kelvollinen valmistumisvuosi")
+    if not re.search("^[0-9]{4}$", year) or not 1888 <= int(year) <= 2100:
+        flash("VIRHE: lisää kelvollinen valmistumisvuosi (1888-2100)")
         return None
     description = request.form["description"]
     if not description or len(description) > 1000:
