@@ -35,13 +35,16 @@ def show_lines(content):
 def validate_movie_data():
     title = request.form["title"]
     if not title or len(title) > 50:
-        abort(403)
+        flash("VIRHE: lisää elokuvan nimi (enintään 50 merkkiä)")
+        return None
     year = request.form["year"]
     if not re.search("^[0-9]{4}$", year):
-        abort(403)
+        flash("VIRHE: lisää kelvollinen valmistumisvuosi")
+        return None
     description = request.form["description"]
     if not description or len(description) > 1000:
-        abort(403)
+        flash("VIRHE: lisää kuvaus (enintään 1000 merkkiä)")
+        return None
     return title, int(year), description
 
 def get_selected_genres():
@@ -129,7 +132,11 @@ def create_movie():
     require_login()
     check_csrf()
 
-    title, year, description = validate_movie_data()
+    data = validate_movie_data()
+    if not data:
+        return redirect("/new_movie")
+
+    title, year, description = data
     genre_ids = get_selected_genres()
     age_rating_id = get_selected_age_rating()
 
@@ -168,7 +175,11 @@ def update_movie():
     if movie["user_id"] != session["user_id"]:
         abort(403)
 
-    title, year, description = validate_movie_data()
+    data = validate_movie_data()
+    if not data:
+        return redirect("/edit_movie/" + str(movie["id"]))
+
+    title, year, description = data
     genre_ids = get_selected_genres()
     age_rating_id = get_selected_age_rating()
 
@@ -201,24 +212,26 @@ def create_review():
     require_login()
     check_csrf()
 
-    rating = request.form["rating"]
-    if not re.search("^(10|[1-9])$", rating):
-        abort(403)
-    comment = request.form["comment"]
-    if not comment or len(comment) > 1000:
-        abort(403)
-
     movie_id = request.form["movie_id"]
     movie = movies.get_movie(movie_id)
     if not movie:
         abort(403)
+
+    rating = request.form["rating"]
+    if not re.search("^(10|[1-9])$", rating):
+        flash("VIRHE: arvosanan tulee olla kokonaisluku välillä 1-10")
+        return redirect("/movie/" + str(movie["id"]))
+    comment = request.form["comment"]
+    if not comment or len(comment) > 1000:
+        flash("VIRHE: lisää kommentti (enintään 1000 merkkiä)")
+        return redirect("/movie/" + str(movie["id"]))
 
     try:
         reviews.add_review(int(movie_id), session["user_id"], int(rating),
                            comment)
     except sqlite3.IntegrityError:
         flash("VIRHE: olet jo antanut arvostelun tälle elokuvalle")
-    return redirect("/movie/" + str(movie_id))
+    return redirect("/movie/" + str(movie["id"]))
 
 @app.route("/register")
 def register():
