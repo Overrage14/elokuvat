@@ -80,6 +80,27 @@ def remove_movie(movie_id):
     sql = "DELETE FROM movies WHERE id = ?"
     db.execute(sql, [movie_id])
 
+def find_movies(query, genre_id):
+    sql = """SELECT movies.id, movies.title, movies.year,
+                    users.id user_id, users.username
+             FROM movies
+             JOIN users ON movies.user_id = users.id"""
+    conditions = []
+    params = []
+    if query:
+        conditions.append("(movies.title LIKE ? OR movies.description LIKE ?)")
+        like = "%" + query + "%"
+        params.append(like)
+        params.append(like)
+    if genre_id:
+        conditions.append("""movies.id IN (SELECT movie_id FROM movie_genres
+                                           WHERE genre_id = ?)""")
+        params.append(genre_id)
+    if conditions:
+        sql += " WHERE " + " AND ".join(conditions)
+    sql += " ORDER BY movies.id DESC"
+    return db.query(sql, params)
+
 def get_movies():
     sql = """SELECT movies.id, movies.title, movies.year,
                     users.id user_id, users.username

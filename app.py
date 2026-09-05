@@ -65,6 +65,22 @@ def index():
     all_movies = movies.get_movies()
     return render_template("index.html", movies=all_movies)
 
+@app.route("/find_movie")
+def find_movie():
+    query = request.args.get("query", "")
+    genre_id = request.args.get("genre_id")
+    genres = movies.get_all_genres()
+    results = []
+    if query or genre_id:
+        if genre_id:
+            valid_ids = {genre["id"] for genre in genres}
+            if not genre_id.isdigit() or int(genre_id) not in valid_ids:
+                abort(403)
+            genre_id = int(genre_id)
+        results = movies.find_movies(query, genre_id)
+    return render_template("find_movie.html", query=query, results=results,
+                           genres=genres, genre_id=genre_id)
+
 @app.route("/movie/<int:movie_id>")
 def show_movie(movie_id):
     movie = movies.get_movie(movie_id)

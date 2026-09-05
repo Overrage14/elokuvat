@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}Etsi elokuva{% endblock %}
+
+{% block content %}
+<h2>Etsi elokuva</h2>
+
+<form action="/find_movie" method="get">
+  <p>
+    <label for="query">Hakusana</label>:
+    <input type="text" name="query" id="query" value="{{ query }}">
+  </p>
+  <p>
+    <label for="genre_id">Genre</label>:
+    <select name="genre_id" id="genre_id">
+      <option value="">(kaikki genret)</option>
+    {% for genre in genres %}
+      {% if genre.id == genre_id %}
+      <option value="{{ genre.id }}" selected>{{ genre.name }}</option>
+      {% else %}
+      <option value="{{ genre.id }}">{{ genre.name }}</option>
+      {% endif %}
+    {% endfor %}
+    </select>
+  </p>
+  <input type="submit" value="Etsi">
+</form>
+
+{% if query or genre_id %}
+<h3>Tulokset</h3>
+
+{% for movie in results %}
+<div class="movie">
+  <a href="/movie/{{ movie.id }}">{{ movie.title }}</a> ({{ movie.year }}) <br />
+  Lisännyt: <a href="/user/{{ movie.user_id }}">{{ movie.username }}</a>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}
