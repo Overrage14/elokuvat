@@ -8,6 +8,7 @@ import markupsafe
 
 import config
 import movies
+import reviews
 import users
 
 app = Flask(__name__)
@@ -88,8 +89,11 @@ def show_movie(movie_id):
         abort(404)
     genres = movies.get_genres(movie_id)
     age_ratings = movies.get_age_ratings(movie_id)
+    movie_reviews = reviews.get_reviews(movie_id)
+    average_rating = reviews.get_average_rating(movie_id)
     return render_template("show_movie.html", movie=movie, genres=genres,
-                           age_ratings=age_ratings)
+                           age_ratings=age_ratings, reviews=movie_reviews,
+                           average_rating=average_rating)
 
 @app.route("/new_movie")
 def new_movie():
@@ -169,6 +173,26 @@ def remove_movie(movie_id):
             movies.remove_movie(movie_id)
             return redirect("/")
         return redirect("/movie/" + str(movie_id))
+
+@app.route("/create_review", methods=["POST"])
+def create_review():
+    require_login()
+    check_csrf()
+
+    rating = request.form["rating"]
+    if not re.search("^(10|[1-9])$", rating):
+        abort(403)
+    comment = request.form["comment"]
+    if not comment or len(comment) > 1000:
+        abort(403)
+
+    movie_id = request.form["movie_id"]
+    movie = movies.get_movie(movie_id)
+    if not movie:
+        abort(403)
+
+    reviews.add_review(int(movie_id), session["user_id"], int(rating), comment)
+    return redirect("/movie/" + str(movie_id))
 
 @app.route("/register")
 def register():

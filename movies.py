@@ -103,8 +103,12 @@ def find_movies(query, genre_id):
 
 def get_movies():
     sql = """SELECT movies.id, movies.title, movies.year,
-                    users.id user_id, users.username
+                    users.id user_id, users.username,
+                    AVG(reviews.rating) avg_rating,
+                    COUNT(reviews.id) review_count
              FROM movies
              JOIN users ON movies.user_id = users.id
+             LEFT JOIN reviews ON movies.id = reviews.movie_id
+             GROUP BY movies.id
              ORDER BY movies.id DESC"""
     return db.query(sql)

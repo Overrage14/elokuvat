@@ -29,4 +29,41 @@
   <li>Ikäraja: {{ age_ratings[0].name }}</li>
 {% endif %}
 </ul>
+
+<h3>Arvostelut</h3>
+
+<p>
+{% if average_rating %}
+  Keskimääräinen arvosana: {{ average_rating | round(1) }} ({{ reviews | count }} arvostelua)
+{% else %}
+  Elokuvalle ei ole vielä arvosteluja.
+{% endif %}
+</p>
+
+<ul>
+{% for review in reviews %}
+  <li>
+    {{ review.rating }}/10, <a href="/user/{{ review.user_id }}">{{ review.username }}</a>: <br />
+    {{ review.comment | show_lines }}
+  </li>
+{% endfor %}
+</ul>
+
+{% if session.user_id %}
+<h3>Uusi arvostelu</h3>
+
+<form action="/create_review" method="post">
+  <p>
+    <label for="rating">Arvosana</label>:
+    <input type="text" name="rating" id="rating" size="4" pattern="(10|[1-9])" required /> / 10
+  </p>
+  <p>
+    <label for="comment">Kommentti</label>: <br />
+    <textarea name="comment" id="comment" rows="4" cols="60" maxlength="1000" required></textarea>
+  </p>
+  <input type="hidden" name="movie_id" value="{{ movie.id }}" />
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Lähetä arvostelu" />
+</form>
+{% endif %}
 {% endblock %}
