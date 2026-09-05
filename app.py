@@ -213,7 +213,11 @@ def create_review():
     if not movie:
         abort(403)
 
-    reviews.add_review(int(movie_id), session["user_id"], int(rating), comment)
+    try:
+        reviews.add_review(int(movie_id), session["user_id"], int(rating),
+                           comment)
+    except sqlite3.IntegrityError:
+        flash("VIRHE: olet jo antanut arvostelun tälle elokuvalle")
     return redirect("/movie/" + str(movie_id))
 
 @app.route("/register")

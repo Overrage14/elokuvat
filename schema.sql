@@ -17,7 +17,8 @@ CREATE TABLE reviews (
     movie_id INTEGER REFERENCES movies,
     user_id INTEGER REFERENCES users,
     rating INTEGER,
-    comment TEXT
+    comment TEXT,
+    UNIQUE (movie_id, user_id)
 );
 
 CREATE TABLE genres (
@@ -39,7 +40,7 @@ CREATE TABLE movie_genres (
 CREATE TABLE movie_age_ratings (
     movie_id INTEGER REFERENCES movies,
     age_rating_id INTEGER REFERENCES age_ratings,
-    UNIQUE (movie_id, age_rating_id)
+    UNIQUE (movie_id)
 );
 
 CREATE INDEX idx_movies_title ON movies (title);

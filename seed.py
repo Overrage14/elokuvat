@@ -53,9 +53,10 @@ def main():
 
     print("Adding reviews:", review_count)
     reviews = []
-    for i in range(1, review_count + 1):
-        movie_id = random.randint(1, movie_count)
-        user_id = random.randint(1, user_count)
+    samples = random.sample(range(movie_count * user_count), review_count)
+    for i, number in enumerate(samples, start=1):
+        movie_id = number // user_count + 1
+        user_id = number % user_count + 1
         rating = random.randint(1, 10)
         comment = "Tämä on testidatana luotu arvostelu, jolla ei ole " \
                   "varsinaista sisältöä. Tietueen numero on " + str(i) + "."
