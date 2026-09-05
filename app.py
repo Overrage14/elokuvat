@@ -134,6 +134,26 @@ def update_movie():
                         genre_ids, age_rating_id)
     return redirect("/movie/" + str(movie_id))
 
+@app.route("/remove_movie/<int:movie_id>", methods=["GET", "POST"])
+def remove_movie(movie_id):
+    require_login()
+
+    movie = movies.get_movie(movie_id)
+    if not movie:
+        abort(404)
+    if movie["user_id"] != session["user_id"]:
+        abort(403)
+
+    if request.method == "GET":
+        return render_template("remove_movie.html", movie=movie)
+
+    if request.method == "POST":
+        check_csrf()
+        if "remove" in request.form:
+            movies.remove_movie(movie_id)
+            return redirect("/")
+        return redirect("/movie/" + str(movie_id))
+
 @app.route("/register")
 def register():
     return render_template("register.html")

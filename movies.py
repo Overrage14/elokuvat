@@ -70,6 +70,16 @@ def update_movie(movie_id, title, year, description, genre_ids, age_rating_id):
                  VALUES (?, ?)"""
         db.execute(sql, [movie_id, age_rating_id])
 
+def remove_movie(movie_id):
+    sql = "DELETE FROM reviews WHERE movie_id = ?"
+    db.execute(sql, [movie_id])
+    sql = "DELETE FROM movie_genres WHERE movie_id = ?"
+    db.execute(sql, [movie_id])
+    sql = "DELETE FROM movie_age_ratings WHERE movie_id = ?"
+    db.execute(sql, [movie_id])
+    sql = "DELETE FROM movies WHERE id = ?"
+    db.execute(sql, [movie_id])
+
 def get_movies():
     sql = """SELECT movies.id, movies.title, movies.year,
                     users.id user_id, users.username
