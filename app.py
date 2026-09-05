@@ -66,6 +66,17 @@ def index():
     all_movies = movies.get_movies()
     return render_template("index.html", movies=all_movies)
 
+@app.route("/user/<int:user_id>")
+def show_user(user_id):
+    user = users.get_user(user_id)
+    if not user:
+        abort(404)
+    user_movies = users.get_movies(user_id)
+    movie_count = users.get_movie_count(user_id)
+    review_count = users.get_review_count(user_id)
+    return render_template("show_user.html", user=user, movies=user_movies,
+                           movie_count=movie_count, review_count=review_count)
+
 @app.route("/find_movie")
 def find_movie():
     query = request.args.get("query", "")

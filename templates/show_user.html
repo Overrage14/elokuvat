@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %}Käyttäjä {{ user.username }}{% endblock %}
+
+{% block content %}
+<h2>Käyttäjä {{ user.username }}</h2>
+
+<ul>
+  <li>Lisännyt {{ movie_count }} elokuvaa.</li>
+  <li>Kirjoittanut {{ review_count }} arvostelua.</li>
+</ul>
+
+<h3>Elokuvat</h3>
+
+{% if movies %}
+<ul>
+{% for movie in movies %}
+  <li>
+    <a href="/movie/{{ movie.id }}">{{ movie.title }}</a> ({{ movie.year }})
+  {% if movie.review_count > 0 %}
+    &ndash; keskimääräinen arvosana {{ movie.avg_rating | round(1) }}
+  {% endif %}
+  </li>
+{% endfor %}
+</ul>
+{% else %}
+<p>
+  Käyttäjä ei ole lisännyt elokuvia.
+</p>
+{% endif %}
+{% endblock %}
