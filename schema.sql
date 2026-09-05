@@ -43,5 +43,6 @@ CREATE TABLE movie_age_ratings (
 );
 
 CREATE INDEX idx_movies_title ON movies (title);
+CREATE INDEX idx_movies_user_id ON movies (user_id);
 CREATE INDEX idx_reviews_movie_id ON reviews (movie_id);
 CREATE INDEX idx_movie_genres_movie_id ON movie_genres (movie_id);
