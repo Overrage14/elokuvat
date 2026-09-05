@@ -14,6 +14,8 @@ import users
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
+page_size = 10
+
 def require_login():
     if "user_id" not in session:
         abort(403)
@@ -63,8 +65,17 @@ def get_selected_age_rating():
 
 @app.route("/")
 def index():
-    all_movies = movies.get_movies()
-    return render_template("index.html", movies=all_movies)
+    page = request.args.get("page", "1")
+    if not page.isdigit():
+        abort(403)
+    page = int(page)
+    movie_count = movies.get_movies_count()
+    page_count = max(1, (movie_count + page_size - 1) // page_size)
+    if page < 1 or page > page_count:
+        abort(404)
+    all_movies = movies.get_movies(page, page_size)
+    return render_template("index.html", movies=all_movies,
+                           page=page, page_count=page_count)
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):

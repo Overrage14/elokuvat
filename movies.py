@@ -101,7 +101,12 @@ def find_movies(query, genre_id):
     sql += " ORDER BY movies.id DESC"
     return db.query(sql, params)
 
-def get_movies():
+def get_movies_count():
+    sql = "SELECT COUNT(*) FROM movies"
+    return db.query(sql)[0][0]
+
+def get_movies(page, page_size):
+    offset = (page - 1) * page_size
     sql = """SELECT movies.id, movies.title, movies.year,
                     users.id user_id, users.username,
                     AVG(reviews.rating) avg_rating,
@@ -110,5 +115,6 @@ def get_movies():
              JOIN users ON movies.user_id = users.id
              LEFT JOIN reviews ON movies.id = reviews.movie_id
              GROUP BY movies.id
-             ORDER BY movies.id DESC"""
-    return db.query(sql)
+             ORDER BY movies.id DESC
+             LIMIT ? OFFSET ?"""
+    return db.query(sql, [page_size, offset])
