@@ -95,6 +95,45 @@ def create_movie():
                                 session["user_id"], genre_ids, age_rating_id)
     return redirect("/movie/" + str(movie_id))
 
+@app.route("/edit_movie/<int:movie_id>")
+def edit_movie(movie_id):
+    require_login()
+    movie = movies.get_movie(movie_id)
+    if not movie:
+        abort(404)
+    if movie["user_id"] != session["user_id"]:
+        abort(403)
+
+    all_genres = movies.get_all_genres()
+    all_age_ratings = movies.get_all_age_ratings()
+    genre_ids = [genre["id"] for genre in movies.get_genres(movie_id)]
+    age_ratings = movies.get_age_ratings(movie_id)
+    age_rating_id = age_ratings[0]["id"] if age_ratings else None
+
+    return render_template("edit_movie.html", movie=movie, genres=all_genres,
+                           age_ratings=all_age_ratings, genre_ids=genre_ids,
+                           age_rating_id=age_rating_id)
+
+@app.route("/update_movie", methods=["POST"])
+def update_movie():
+    require_login()
+    check_csrf()
+
+    movie_id = request.form["movie_id"]
+    movie = movies.get_movie(movie_id)
+    if not movie:
+        abort(404)
+    if movie["user_id"] != session["user_id"]:
+        abort(403)
+
+    title, year, description = validate_movie_data()
+    genre_ids = get_selected_genres()
+    age_rating_id = get_selected_age_rating()
+
+    movies.update_movie(movie_id, title, year, description,
+                        genre_ids, age_rating_id)
+    return redirect("/movie/" + str(movie_id))
+
 @app.route("/register")
 def register():
     return render_template("register.html")

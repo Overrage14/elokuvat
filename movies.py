@@ -50,6 +50,26 @@ def add_movie(title, year, description, user_id, genre_ids, age_rating_id):
 
     return movie_id
 
+def update_movie(movie_id, title, year, description, genre_ids, age_rating_id):
+    sql = """UPDATE movies SET title = ?,
+                              year = ?,
+                              description = ?
+                          WHERE id = ?"""
+    db.execute(sql, [title, year, description, movie_id])
+
+    sql = "DELETE FROM movie_genres WHERE movie_id = ?"
+    db.execute(sql, [movie_id])
+    sql = "INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)"
+    for genre_id in genre_ids:
+        db.execute(sql, [movie_id, genre_id])
+
+    sql = "DELETE FROM movie_age_ratings WHERE movie_id = ?"
+    db.execute(sql, [movie_id])
+    if age_rating_id:
+        sql = """INSERT INTO movie_age_ratings (movie_id, age_rating_id)
+                 VALUES (?, ?)"""
+        db.execute(sql, [movie_id, age_rating_id])
+
 def get_movies():
     sql = """SELECT movies.id, movies.title, movies.year,
                     users.id user_id, users.username

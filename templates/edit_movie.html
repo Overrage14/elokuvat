@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}Elokuvan muokkaus{% endblock %}
+
+{% block content %}
+<h2>{{ movie.title }}</h2>
+<h3>Elokuvan muokkaus</h3>
+
+<form action="/update_movie" method="post">
+  <p>
+    <label for="title">Nimi</label>: <br />
+    <input type="text" name="title" id="title" value="{{ movie.title }}" maxlength="50" required />
+  </p>
+  <p>
+    <label for="year">Valmistumisvuosi</label>: <br />
+    <input type="text" name="year" id="year" value="{{ movie.year }}" size="6" pattern="[0-9]{4}" required />
+  </p>
+  <p>
+    <label for="description">Kuvaus</label>: <br />
+    <textarea name="description" id="description" rows="8" cols="60" maxlength="1000" required>{{ movie.description }}</textarea>
+  </p>
+  <p>
+    Genre: <br />
+  {% for genre in genres %}
+    <input type="checkbox" name="genres" value="{{ genre.id }}" id="genre{{ genre.id }}"
+    {% if genre.id in genre_ids %}checked{% endif %} />
+    <label for="genre{{ genre.id }}">{{ genre.name }}</label> <br />
+  {% endfor %}
+  </p>
+  <p>
+    <label for="age_rating">Ikäraja</label>: <br />
+    <select name="age_rating" id="age_rating">
+      <option value="">(ei ikärajaa)</option>
+    {% for age_rating in age_ratings %}
+      {% if age_rating.id == age_rating_id %}
+      <option value="{{ age_rating.id }}" selected>{{ age_rating.name }}</option>
+      {% else %}
+      <option value="{{ age_rating.id }}">{{ age_rating.name }}</option>
+      {% endif %}
+    {% endfor %}
+    </select>
+  </p>
+  <input type="hidden" name="movie_id" value="{{ movie.id }}" />
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Tallenna muutokset" />
+</form>
+
+<p>
+  <a href="/movie/{{ movie.id }}">Takaisin elokuvaan</a>
+</p>
+{% endblock %}
