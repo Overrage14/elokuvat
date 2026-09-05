@@ -1,0 +1,36 @@
+body {
+  margin: auto;
+  max-width: 50em;
+  font-family: sans-serif;
+  background-color: #f4f4f8;
+  color: #222222;
+  padding: 0 1em;
+}
+
+h1 {
+  background-color: #14213d;
+  color: #ffffff;
+  padding: 0.6em 1em;
+  border-radius: 6px;
+}
+
+a {
+  color: #14213d;
+}
+
+.movie {
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  margin: 1em 0;
+  padding: 0.4em 1em;
+  background-color: #ffffff;
+}
+
+.info {
+  border: 2px solid #b00020;
+  border-radius: 6px;
+  margin: 1em 0;
+  padding: 0.5em;
+  background-color: #fdecea;
+  color: #b00020;
+}
