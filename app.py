@@ -58,6 +58,16 @@ def index():
     all_movies = movies.get_movies()
     return render_template("index.html", movies=all_movies)
 
+@app.route("/movie/<int:movie_id>")
+def show_movie(movie_id):
+    movie = movies.get_movie(movie_id)
+    if not movie:
+        abort(404)
+    genres = movies.get_genres(movie_id)
+    age_ratings = movies.get_age_ratings(movie_id)
+    return render_template("show_movie.html", movie=movie, genres=genres,
+                           age_ratings=age_ratings)
+
 @app.route("/new_movie")
 def new_movie():
     require_login()

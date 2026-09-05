@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+<h2>{{ movie.title }} ({{ movie.year }})</h2>
+
+{% if session.user_id == movie.user_id %}
+<p>
+  <a href="/edit_movie/{{ movie.id }}">Muokkaa</a>
+  <a href="/remove_movie/{{ movie.id }}">Poista</a>
+</p>
+{% endif %}
+
+<p>
+  {{ movie.description }}
+</p>
+
+<ul>
+  <li>Lisännyt: <a href="/user/{{ movie.user_id }}">{{ movie.username }}</a></li>
+{% if genres %}
+  <li>Genre:
+  {% for genre in genres %}
+    {{ genre.name }}{% if not loop.last %},{% endif %}
+  {% endfor %}
+  </li>
+{% endif %}
+{% if age_ratings %}
+  <li>Ikäraja: {{ age_ratings[0].name }}</li>
+{% endif %}
+</ul>
+{% endblock %}

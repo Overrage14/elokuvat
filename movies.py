@@ -8,6 +8,30 @@ def get_all_age_ratings():
     sql = "SELECT id, name FROM age_ratings ORDER BY id"
     return db.query(sql)
 
+def get_movie(movie_id):
+    sql = """SELECT movies.id, movies.title, movies.year, movies.description,
+                    users.id user_id, users.username
+             FROM movies, users
+             WHERE movies.user_id = users.id AND movies.id = ?"""
+    result = db.query(sql, [movie_id])
+    return result[0] if result else None
+
+def get_genres(movie_id):
+    sql = """SELECT genres.id, genres.name
+             FROM genres, movie_genres
+             WHERE genres.id = movie_genres.genre_id AND
+                   movie_genres.movie_id = ?
+             ORDER BY genres.id"""
+    return db.query(sql, [movie_id])
+
+def get_age_ratings(movie_id):
+    sql = """SELECT age_ratings.id, age_ratings.name
+             FROM age_ratings, movie_age_ratings
+             WHERE age_ratings.id = movie_age_ratings.age_rating_id AND
+                   movie_age_ratings.movie_id = ?
+             ORDER BY age_ratings.id"""
+    return db.query(sql, [movie_id])
+
 def add_movie(title, year, description, user_id, genre_ids, age_rating_id):
     sql = """INSERT INTO movies (title, year, description, user_id)
              VALUES (?, ?, ?, ?)"""
