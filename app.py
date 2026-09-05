@@ -1,3 +1,4 @@
+import re
 import secrets
 import sqlite3
 
@@ -11,10 +12,71 @@ import users
 app = Flask(__name__)
 app.secret_key = config.secret_key
 
+def require_login():
+    if "user_id" not in session:
+        abort(403)
+
+def check_csrf():
+    if "csrf_token" not in request.form:
+        abort(403)
+    if request.form["csrf_token"] != session["csrf_token"]:
+        abort(403)
+
+def validate_movie_data():
+    title = request.form["title"]
+    if not title or len(title) > 50:
+        abort(403)
+    year = request.form["year"]
+    if not re.search("^[0-9]{4}$", year):
+        abort(403)
+    description = request.form["description"]
+    if not description or len(description) > 1000:
+        abort(403)
+    return title, int(year), description
+
+def get_selected_genres():
+    valid_ids = {genre["id"] for genre in movies.get_all_genres()}
+    genre_ids = []
+    for entry in request.form.getlist("genres"):
+        if entry:
+            if not entry.isdigit() or int(entry) not in valid_ids:
+                abort(403)
+            genre_ids.append(int(entry))
+    return genre_ids
+
+def get_selected_age_rating():
+    valid_ids = {age_rating["id"] for age_rating in movies.get_all_age_ratings()}
+    entry = request.form["age_rating"]
+    if not entry:
+        return None
+    if not entry.isdigit() or int(entry) not in valid_ids:
+        abort(403)
+    return int(entry)
+
 @app.route("/")
 def index():
     all_movies = movies.get_movies()
     return render_template("index.html", movies=all_movies)
+
+@app.route("/new_movie")
+def new_movie():
+    require_login()
+    genres = movies.get_all_genres()
+    age_ratings = movies.get_all_age_ratings()
+    return render_template("new_movie.html", genres=genres, age_ratings=age_ratings)
+
+@app.route("/create_movie", methods=["POST"])
+def create_movie():
+    require_login()
+    check_csrf()
+
+    title, year, description = validate_movie_data()
+    genre_ids = get_selected_genres()
+    age_rating_id = get_selected_age_rating()
+
+    movie_id = movies.add_movie(title, year, description,
+                                session["user_id"], genre_ids, age_rating_id)
+    return redirect("/movie/" + str(movie_id))
 
 @app.route("/register")
 def register():
