@@ -5,41 +5,43 @@ Pylint antaa seuraavan raportin sovelluksen lopullisesta versiosta (koodi on tar
 ```
 ************* Module app
 app.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-app.py:18:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
-app.py:20:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:30:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:34:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:41:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:46:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:61:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:71:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:81:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:88:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:102:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:128:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:143:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:150:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:167:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:186:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:210:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:210:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:230:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:256:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:260:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:281:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:281:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:299:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:20:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
+app.py:22:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:32:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:36:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:43:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:48:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:63:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:73:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:83:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:90:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:104:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:130:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:145:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:152:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:169:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:188:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:212:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:212:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:232:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:258:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:262:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:283:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:283:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:301:0: C0116: Missing function or method docstring (missing-function-docstring)
 ************* Module config
 config.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 config.py:1:0: C0103: Constant name "secret_key" doesn't conform to UPPER_CASE naming style (invalid-name)
 ************* Module db
 db.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-db.py:4:0: C0116: Missing function or method docstring (missing-function-docstring)
-db.py:10:0: C0116: Missing function or method docstring (missing-function-docstring)
-db.py:10:0: W0102: Dangerous default value [] as argument (dangerous-default-value)
+db.py:6:0: C0103: Constant name "time_queries" doesn't conform to UPPER_CASE naming style (invalid-name)
+db.py:8:0: C0116: Missing function or method docstring (missing-function-docstring)
+db.py:14:0: C0116: Missing function or method docstring (missing-function-docstring)
 db.py:19:0: C0116: Missing function or method docstring (missing-function-docstring)
-db.py:22:0: C0116: Missing function or method docstring (missing-function-docstring)
-db.py:22:0: W0102: Dangerous default value [] as argument (dangerous-default-value)
+db.py:19:0: W0102: Dangerous default value [] as argument (dangerous-default-value)
+db.py:31:0: C0116: Missing function or method docstring (missing-function-docstring)
+db.py:34:0: C0116: Missing function or method docstring (missing-function-docstring)
+db.py:34:0: W0102: Dangerous default value [] as argument (dangerous-default-value)
 ************* Module movies
 movies.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 movies.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)
@@ -81,7 +83,7 @@ users.py:27:0: C0116: Missing function or method docstring (missing-function-doc
 users.py:31:0: C0116: Missing function or method docstring (missing-function-docstring)
 users.py:36:0: C0116: Missing function or method docstring (missing-function-docstring)
 
-Your code has been rated at 8.38/10
+Your code has been rated at 8.41/10
 ```
 
 Seuraavassa käyn läpi raportin ilmoitukset. Moni ilmoitus koskee samaa asiaa, joten käsittelemme samanlaiset ilmoitukset yhteisesti.
@@ -105,6 +107,7 @@ Raportissa on seuraavat ilmoitukset liittyen vakionimiin:
 ```
 app.py:17:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
 config.py:1:0: C0103: Constant name "secret_key" doesn't conform to UPPER_CASE naming style (invalid-name)
+db.py:6:0: C0103: Constant name "time_queries" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:6:0: C0103: Constant name "user_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:7:0: C0103: Constant name "movie_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:8:0: C0103: Constant name "review_count" doesn't conform to UPPER_CASE naming style (invalid-name)
@@ -129,11 +132,14 @@ Ilmoitukset koskevat esimerkiksi seuraavaa funktiota:
 
 ```python
 def query(sql, params=[]):
+    start = time.perf_counter()
     con = get_connection()
     try:
         result = con.execute(sql, params).fetchall()
     finally:
         con.close()
+    if time_queries:
+        print_query_time(sql, start)
     return result
 ```
 
