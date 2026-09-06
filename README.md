@@ -49,6 +49,18 @@ $ sqlite3 database.db < init.sql
 $ python3 seed.py
 ```
 
+Sovelluksen voi käynnistää niin, että se tulostaa jokaisen tietokantaoperaation keston:
+
+```
+$ python3 app.py --time-db
+```
+
+Tällöin jokaisen sivun latauksen yhteydessä tulostuu esimerkiksi seuraavanlainen rivi:
+
+```
+0.4 ms  SELECT movies.id, movies.title, movies.year, users.id user_id, users.username, AVG(reviews.rating) avg_rating, COUNT(reviews.id) review_count FROM movies JOIN users ON movies.user_id = users.id LEFT JOIN reviews ON movies.id = reviews.movie_id GROUP BY movies.id ORDER BY movies.id DESC LIMIT ? OFFSET ?
+```
+
 Testasin sovelluksen toiminnan tällä tietomäärällä mittaamalla sivujen latausaikoja komennon `curl` avulla. Jokaisen tuloksen kolme lukua ovat kolmen mittauksen kestot sekunteina:
 
 | Sivu | Latausaika |

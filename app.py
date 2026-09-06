@@ -1,3 +1,4 @@
+import argparse
 import re
 import secrets
 import sqlite3
@@ -8,6 +9,7 @@ from flask import abort, flash, redirect, render_template, request, session
 import markupsafe
 
 import config
+import db
 import movies
 import reviews
 import users
@@ -301,3 +303,12 @@ def logout():
         del session["user_id"]
         del session["username"]
     return redirect("/")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--time-db", action="store_true",
+                        help="print the duration of each database operation")
+    arguments = parser.parse_args()
+    if arguments.time_db:
+        db.time_queries = True
+    app.run()
