@@ -5,29 +5,30 @@ Pylint antaa seuraavan raportin sovelluksen lopullisesta versiosta (koodi on tar
 ```
 ************* Module app
 app.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-app.py:17:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
-app.py:19:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:23:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:18:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
+app.py:20:0: C0116: Missing function or method docstring (missing-function-docstring)
 app.py:30:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:35:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:47:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:57:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:67:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:34:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:41:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:46:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:61:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:71:0: C0116: Missing function or method docstring (missing-function-docstring)
 app.py:81:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:92:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:108:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:121:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:88:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:102:0: C0116: Missing function or method docstring (missing-function-docstring)
 app.py:128:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:141:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:160:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:180:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:180:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:200:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:220:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:224:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:245:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:245:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:263:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:143:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:150:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:167:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:186:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:210:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:210:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:230:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:256:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:260:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:281:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:281:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:299:0: C0116: Missing function or method docstring (missing-function-docstring)
 ************* Module config
 config.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 config.py:1:0: C0103: Constant name "secret_key" doesn't conform to UPPER_CASE naming style (invalid-name)
@@ -54,32 +55,34 @@ movies.py:53:0: R0913: Too many arguments (6/5) (too-many-arguments)
 movies.py:53:0: R0917: Too many positional arguments (6/5) (too-many-positional-arguments)
 movies.py:73:0: C0116: Missing function or method docstring (missing-function-docstring)
 movies.py:83:0: C0116: Missing function or method docstring (missing-function-docstring)
-movies.py:104:0: C0116: Missing function or method docstring (missing-function-docstring)
-movies.py:108:0: C0116: Missing function or method docstring (missing-function-docstring)
+movies.py:100:0: C0116: Missing function or method docstring (missing-function-docstring)
+movies.py:107:0: C0116: Missing function or method docstring (missing-function-docstring)
+movies.py:120:0: C0116: Missing function or method docstring (missing-function-docstring)
+movies.py:124:0: C0116: Missing function or method docstring (missing-function-docstring)
 ************* Module reviews
 reviews.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 reviews.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)
 reviews.py:11:0: C0116: Missing function or method docstring (missing-function-docstring)
 reviews.py:16:0: C0116: Missing function or method docstring (missing-function-docstring)
+reviews.py:20:0: C0116: Missing function or method docstring (missing-function-docstring)
 ************* Module seed
 seed.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 seed.py:6:0: C0103: Constant name "user_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:7:0: C0103: Constant name "movie_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:8:0: C0103: Constant name "review_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:10:0: C0116: Missing function or method docstring (missing-function-docstring)
-seed.py:10:0: R0914: Too many local variables (17/15) (too-many-locals)
+seed.py:10:0: R0914: Too many local variables (19/15) (too-many-locals)
 ************* Module users
 users.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 users.py:5:0: C0116: Missing function or method docstring (missing-function-docstring)
 users.py:10:0: C0116: Missing function or method docstring (missing-function-docstring)
-users.py:21:0: C0116: Missing function or method docstring (missing-function-docstring)
-users.py:25:0: C0116: Missing function or method docstring (missing-function-docstring)
-users.py:29:0: C0116: Missing function or method docstring (missing-function-docstring)
-users.py:34:0: C0116: Missing function or method docstring (missing-function-docstring)
+users.py:23:0: C0116: Missing function or method docstring (missing-function-docstring)
+users.py:27:0: C0116: Missing function or method docstring (missing-function-docstring)
+users.py:31:0: C0116: Missing function or method docstring (missing-function-docstring)
+users.py:36:0: C0116: Missing function or method docstring (missing-function-docstring)
 
-------------------------------------------------------------------
-Your code has been rated at 8.29/10
-```
+Your code has been rated at 8.37/10
+
 
 Seuraavassa käyn läpi raportin ilmoitukset. Moni ilmoitus koskee samaa asiaa, joten käsittelemme samanlaiset ilmoitukset yhteisesti.
 
@@ -186,7 +189,7 @@ Funktion parametrit vastaavat suoraan elokuvaan tallennettavia tietoja: elokuvan
 Raportissa on seuraava ilmoitus:
 
 ```
-seed.py:10:0: R0914: Too many local variables (17/15) (too-many-locals)
+seed.py:10:0: R0914: Too many local variables (19/15) (too-many-locals)
 ```
 
 Ilmoitus koskee tiedoston `seed.py` funktiota `main`, joka luo tietokantaan suuren määrän testidataa. Funktiossa on paikallisia muuttujia esimerkiksi lisättävien käyttäjien, elokuvien ja arvostelujen tietorakenteille. Funktion voisi jakaa useampaan funktion, mutta koska kyseessä on vain testidatan luomiseen tarkoitettu apuskripti, en nähnyt tätä tarpeellisena.
