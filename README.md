@@ -11,7 +11,7 @@
 * Käyttäjä pystyy valitsemaan elokuvalle yhden tai useamman luokittelun:
   - Genre: toiminta, animaatio, dokumentti, draama, kauhu, komedia, romanttinen, scifi, seikkailu tai trilleri
   - Ikäraja: S, 7, 12, 16 tai 18
-* Käyttäjä pystyy antamaan elokuvalle arvostelun, joka sisältää kommentin ja arvosanan. Elokuvasta näytetään arvostelut ja keskimääräinen arvosana.
+* Käyttäjä pystyy antamaan elokuvalle arvostelun, joka sisältää kommentin ja arvosanan (yhden arvostelun per elokuva). Elokuvasta näytetään arvostelut ja keskimääräinen arvosana.
 
 Tässä pääasiallinen tietokohde on elokuva ja toissijainen tietokohde on elokuvan arvostelu.
 
@@ -40,7 +40,7 @@ Sovelluksen testaaminen on helpointa luomalla ensin tunnus ja kirjautumalla sis�
 
 ## Sovelluksen testaus suurella tietomäärällä
 
-Tiedosto `seed.py` luo tietokantaan suuren määrän testidataa: 1000 käyttäjää, 10000 elokuvaa ja 50000 arvostelua. Testidatan voi luoda näin:
+Tiedosto `seed.py` luo tietokantaan suuren määrän testidataa: 1000 käyttäjää, 100000 elokuvaa ja 500000 arvostelua. Testidatan voi luoda näin:
 
 ```
 $ rm -f database.db
@@ -53,21 +53,35 @@ Testasin sovelluksen toiminnan tällä tietomäärällä mittaamalla sivujen lat
 
 | Sivu | Latausaika |
 |---|---|
-| Etusivu (10 elokuvan sivu) | 0.003 / 0.003 / 0.010 |
-| Elokuvan sivu | 0.002 / 0.002 / 0.006 |
-| Hakusana­haku ("Elokuva 1") | 0.011 / 0.012 / 0.014 |
-| Genrehaku | 0.012 / 0.013 / 0.016 |
-| Käyttäjäsivu | 0.007 / 0.007 / 0.008 |
+| Etusivu (10 elokuvan sivu) | 0.003 / 0.003 / 0.003 |
+| Elokuvan sivu | 0.003 / 0.002 / 0.002 |
+| Hakusanahaku ("Elokuva 1") | 0.031 / 0.031 / 0.033 |
+| Genrehaku | 0.030 / 0.025 / 0.034 |
+| Käyttäjäsivu | 0.003 / 0.003 / 0.002 |
 
-Kaikki sivut latautuvat nopeasti. Selvitin myös, mikä merkitys tietokantaan lisätyillä indekseillä on poistamalla indeksit `idx_reviews_movie_id` ja `idx_movie_genres_movie_id` väliaikaisesti ja toistamalla mittaukset:
+Kaikki sivut latautuvat nopeasti. Hakusana- ja genrehaku ovat hitaimpia, koska hakusana voi esiintyä myös elokuvan kuvauksessa, jolloin SQL-komennon on käytävä läpi kaikki 100000 elokuvaa. Haku on silti selvästi alle sekunnin.
 
-| Sivu | Latausaika ilman indeksejä |
-|---|---|
-| Etusivu (10 elokuvan sivu) | 0.024 / 0.028 / 0.029 |
-| Elokuvan sivu | 0.009 / 0.009 / 0.020 |
-| Genrehaku | 0.012 / 0.016 / 0.021 |
-| Käyttäjäsivu | 0.027 / 0.030 / 0.033 |
+Selvitin myös, mikä merkitys tietokantaan lisätyillä indekseillä on poistamalla indeksit väliaikaisesti ja toistamalla mittaukset:
 
-Indeksit nopeuttavat etusivua ja käyttäjäsivua noin viidestä kymmeneen kertaan, koska arvostelujen keskiarvon laskeminen perustuu hakuun arvosteluista elokuvan id:n perusteella. Hakusana­haun tapauksessa hakusana voi esiintyä myös elokuvan kuvauksessa, jolloin SQL-komennon on käytävä läpi kaikki elokuvat; tällöin indeksi elokuvan nimellä ei voi nopeuttaa hakua. Joka tapauksessa haku on nopea 10000 elokuvan tietomäärällä.
+| Sivu | Indeksit | Ilman indeksejä |
+|---|---|---|
+| Etusivu (10 elokuvan sivu) | 0.003 / 0.003 / 0.003 | 0.005 / 0.005 / 0.005 |
+| Elokuvan sivu | 0.003 / 0.002 / 0.002 | 0.002 / 0.003 / 0.002 |
+| Hakusanahaku ("Elokuva 1") | 0.031 / 0.031 / 0.033 | 0.029 / 0.028 / 0.037 |
+| Genrehaku | 0.030 / 0.025 / 0.034 | 0.025 / 0.027 / 0.023 |
+| Käyttäjäsivu | 0.003 / 0.003 / 0.002 | 0.030 / 0.027 / 0.023 |
 
-Suuren tietomäärän käsittelyä helpottaa lisäksi etusivun sivutus, joka hakee kerralla vain 10 elokuvaa.
+Indeksit nopeuttavat käyttäjäsivua noin kymmenkertaisesti. Ilman indeksejä käyttäjän elokuvien haun on luettava kaikki 100000 elokuvaa ja käyttäjän arvostelujen määrän laskeminen kaikki 500000 arvostelua. Sen sijaan hakusana- ja genrehaku eivät hyödy indekseistä, koska haku käy joka tapauksessa läpi kaikki elokuvat. Etusivun ja elokuvan sivun arvostelujen haku toimii myös ilman erikseen luotuja indeksejä, koska arvostelu-taulun `UNIQUE`-ehto muodostaa tietokantaan automaattisen indeksin, joka kattaa saman haun. Kyselyt käyttävät indeksejä, kuten käy ilmi `EXPLAIN QUERY PLAN` -komennon tuloksista. Käyttäjäsivun kysely käyttää indeksejä `idx_movies_user_id`, `idx_reviews_movie_id` ja `idx_reviews_user_id`:
+
+```
+QUERY PLAN
+|--SEARCH movies USING INDEX idx_movies_user_id (user_id=?)
+`--SEARCH reviews USING INDEX idx_reviews_movie_id (movie_id=?) LEFT-JOIN
+```
+
+```
+QUERY PLAN
+`--SEARCH reviews USING COVERING INDEX idx_reviews_user_id (user_id=?)
+```
+
+Suuren tietomäärän käsittelyä helpottaa lisäksi sivutus: etusivu, hakutulokset ja käyttäjäsivun elokuvalista näyttävät kerralla vain 10 kohdetta, vaikka tietokannassa olisi satojatuhansia rivejä.
