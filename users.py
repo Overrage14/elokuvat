@@ -7,7 +7,8 @@ def get_user(user_id):
     result = db.query(sql, [user_id])
     return result[0] if result else None
 
-def get_movies(user_id):
+def get_movies(user_id, page, page_size):
+    offset = (page - 1) * page_size
     sql = """SELECT movies.id, movies.title, movies.year,
                     AVG(reviews.rating) avg_rating,
                     COUNT(reviews.id) review_count
@@ -15,8 +16,9 @@ def get_movies(user_id):
              LEFT JOIN reviews ON movies.id = reviews.movie_id
              WHERE movies.user_id = ?
              GROUP BY movies.id
-             ORDER BY movies.id DESC"""
-    return db.query(sql, [user_id])
+             ORDER BY movies.id DESC
+             LIMIT ? OFFSET ?"""
+    return db.query(sql, [user_id, page_size, offset])
 
 def get_movie_count(user_id):
     sql = "SELECT COUNT(*) FROM movies WHERE user_id = ?"

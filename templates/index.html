@@ -5,6 +5,7 @@
 {% block content %}
 <h2>Elokuvat</h2>
 
+{% if movies %}
 {% for movie in movies %}
 <div class="movie">
   <a href="/movie/{{ movie.id }}">{{ movie.title }}</a> ({{ movie.year }}) <br />
@@ -17,13 +18,10 @@
 </div>
 {% endfor %}
 
+{% include "pagination.html" %}
+{% else %}
 <p>
-  Sivu {{ page }} / {{ page_count }}
-{% if page > 1 %}
-  <a href="/?page={{ page - 1 }}">Edellinen sivu</a>
-{% endif %}
-{% if page < page_count %}
-  <a href="/?page={{ page + 1 }}">Seuraava sivu</a>
-{% endif %}
+  Ei elokuvia.
 </p>
+{% endif %}
 {% endblock %}

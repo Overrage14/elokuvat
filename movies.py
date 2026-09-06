@@ -80,11 +80,10 @@ def remove_movie(movie_id):
     sql = "DELETE FROM movies WHERE id = ?"
     db.execute(sql, [movie_id])
 
-def find_movies(query, genre_id):
-    sql = """SELECT movies.id, movies.title, movies.year,
-                    users.id user_id, users.username
-             FROM movies
-             JOIN users ON movies.user_id = users.id"""
+def find_conditions(query, genre_id):
+    # Builds the WHERE conditions for keyword and genre search. The
+    # conditions are fixed strings and all values are given as
+    # parameters, so the dynamic construction is safe.
     conditions = []
     params = []
     if query:
@@ -96,9 +95,26 @@ def find_movies(query, genre_id):
         conditions.append("""movies.id IN (SELECT movie_id FROM movie_genres
                                            WHERE genre_id = ?)""")
         params.append(genre_id)
+    return conditions, params
+
+def find_movies_count(query, genre_id):
+    conditions, params = find_conditions(query, genre_id)
+    sql = "SELECT COUNT(*) FROM movies"
     if conditions:
         sql += " WHERE " + " AND ".join(conditions)
-    sql += " ORDER BY movies.id DESC"
+    return db.query(sql, params)[0][0]
+
+def find_movies(query, genre_id, page, page_size):
+    conditions, params = find_conditions(query, genre_id)
+    sql = """SELECT movies.id, movies.title, movies.year,
+                    users.id user_id, users.username
+             FROM movies
+             JOIN users ON movies.user_id = users.id"""
+    if conditions:
+        sql += " WHERE " + " AND ".join(conditions)
+    sql += " ORDER BY movies.id DESC LIMIT ? OFFSET ?"
+    params.append(page_size)
+    params.append((page - 1) * page_size)
     return db.query(sql, params)
 
 def get_movies_count():

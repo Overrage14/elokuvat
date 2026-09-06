@@ -1,6 +1,7 @@
 import re
 import secrets
 import sqlite3
+from urllib.parse import quote
 
 from flask import Flask
 from flask import abort, flash, redirect, render_template, request, session
@@ -15,6 +16,16 @@ app = Flask(__name__)
 app.secret_key = config.secret_key
 
 page_size = 10
+
+def get_page(item_count):
+    page = request.args.get("page", "1")
+    if not page.isdigit():
+        abort(403)
+    page = int(page)
+    page_count = max(1, (item_count + page_size - 1) // page_size)
+    if page < 1 or page > page_count:
+        abort(404)
+    return page, page_count
 
 def require_login():
     if "user_id" not in session:
@@ -68,28 +79,24 @@ def get_selected_age_rating():
 
 @app.route("/")
 def index():
-    page = request.args.get("page", "1")
-    if not page.isdigit():
-        abort(403)
-    page = int(page)
-    movie_count = movies.get_movies_count()
-    page_count = max(1, (movie_count + page_size - 1) // page_size)
-    if page < 1 or page > page_count:
-        abort(404)
+    page, page_count = get_page(movies.get_movies_count())
     all_movies = movies.get_movies(page, page_size)
-    return render_template("index.html", movies=all_movies,
-                           page=page, page_count=page_count)
+    return render_template("index.html", movies=all_movies, page=page,
+                           page_count=page_count, page_url="/?")
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
     user = users.get_user(user_id)
     if not user:
         abort(404)
-    user_movies = users.get_movies(user_id)
     movie_count = users.get_movie_count(user_id)
+    page, page_count = get_page(movie_count)
+    user_movies = users.get_movies(user_id, page, page_size)
     review_count = users.get_review_count(user_id)
     return render_template("show_user.html", user=user, movies=user_movies,
-                           movie_count=movie_count, review_count=review_count)
+                           movie_count=movie_count, review_count=review_count,
+                           page=page, page_count=page_count,
+                           page_url="/user/" + str(user_id) + "?")
 
 @app.route("/find_movie")
 def find_movie():
@@ -97,15 +104,25 @@ def find_movie():
     genre_id = request.args.get("genre_id")
     genres = movies.get_all_genres()
     results = []
+    page = None
+    page_count = None
+    page_url = "/find_movie?"
     if query or genre_id:
         if genre_id:
             valid_ids = {genre["id"] for genre in genres}
             if not genre_id.isdigit() or int(genre_id) not in valid_ids:
                 abort(403)
             genre_id = int(genre_id)
-        results = movies.find_movies(query, genre_id)
+        movie_count = movies.find_movies_count(query, genre_id)
+        page, page_count = get_page(movie_count)
+        results = movies.find_movies(query, genre_id, page, page_size)
+        if query:
+            page_url += "query=" + quote(query) + "&"
+        if genre_id:
+            page_url += "genre_id=" + str(genre_id) + "&"
     return render_template("find_movie.html", query=query, results=results,
-                           genres=genres, genre_id=genre_id)
+                           genres=genres, genre_id=genre_id, page=page,
+                           page_count=page_count, page_url=page_url)
 
 @app.route("/movie/<int:movie_id>")
 def show_movie(movie_id):

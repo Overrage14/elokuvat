@@ -29,11 +29,24 @@
 {% if query or genre_id %}
 <h3>Tulokset</h3>
 
+{% if results %}
 {% for movie in results %}
 <div class="movie">
   <a href="/movie/{{ movie.id }}">{{ movie.title }}</a> ({{ movie.year }}) <br />
   Lisännyt: <a href="/user/{{ movie.user_id }}">{{ movie.username }}</a>
 </div>
 {% endfor %}
+
+{% include "pagination.html" %}
+{% else %}
+<p>
+  Ei tuloksia.
+</p>
+{% endif %}
+
+{% else %}
+<p>
+  Syötä hakusana tai valitse genre.
+</p>
 {% endif %}
 {% endblock %}

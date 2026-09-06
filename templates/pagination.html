@@ -1,0 +1,9 @@
+<p>
+  Sivu {{ page }} / {{ page_count }}
+{% if page > 1 %}
+  <a href="{{ page_url }}page={{ page - 1 }}">Edellinen sivu</a>
+{% endif %}
+{% if page < page_count %}
+  <a href="{{ page_url }}page={{ page + 1 }}">Seuraava sivu</a>
+{% endif %}
+</p>
