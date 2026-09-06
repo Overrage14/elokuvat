@@ -4,8 +4,8 @@ import sqlite3
 from werkzeug.security import generate_password_hash
 
 user_count = 1000
-movie_count = 10000
-review_count = 50000
+movie_count = 100000
+review_count = 500000
 
 def main():
     random.seed(12345)
