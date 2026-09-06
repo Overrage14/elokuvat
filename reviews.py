@@ -13,6 +13,10 @@ def get_average_rating(movie_id):
     result = db.query(sql, [movie_id])
     return result[0][0]
 
+def get_review_count(movie_id):
+    sql = "SELECT COUNT(*) FROM reviews WHERE movie_id = ?"
+    return db.query(sql, [movie_id])[0][0]
+
 def add_review(movie_id, user_id, rating, comment):
     sql = """INSERT INTO reviews (movie_id, user_id, rating, comment)
              VALUES (?, ?, ?, ?)"""

@@ -34,7 +34,7 @@
 
 <p>
 {% if average_rating %}
-  Keskimääräinen arvosana: {{ average_rating | round(1) }} ({{ reviews | count }} arvostelua)
+  Keskimääräinen arvosana: {{ average_rating | round(1) }} ({{ review_count }} arvostelua)
 {% else %}
   Elokuvalle ei ole vielä arvosteluja.
 {% endif %}

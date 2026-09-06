@@ -116,9 +116,11 @@ def show_movie(movie_id):
     age_ratings = movies.get_age_ratings(movie_id)
     movie_reviews = reviews.get_reviews(movie_id)
     average_rating = reviews.get_average_rating(movie_id)
+    review_count = reviews.get_review_count(movie_id)
     return render_template("show_movie.html", movie=movie, genres=genres,
                            age_ratings=age_ratings, reviews=movie_reviews,
-                           average_rating=average_rating)
+                           average_rating=average_rating,
+                           review_count=review_count)
 
 @app.route("/new_movie")
 def new_movie():
