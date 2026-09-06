@@ -37,9 +37,9 @@ db.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 db.py:4:0: C0116: Missing function or method docstring (missing-function-docstring)
 db.py:10:0: C0116: Missing function or method docstring (missing-function-docstring)
 db.py:10:0: W0102: Dangerous default value [] as argument (dangerous-default-value)
-db.py:17:0: C0116: Missing function or method docstring (missing-function-docstring)
-db.py:20:0: C0116: Missing function or method docstring (missing-function-docstring)
-db.py:20:0: W0102: Dangerous default value [] as argument (dangerous-default-value)
+db.py:19:0: C0116: Missing function or method docstring (missing-function-docstring)
+db.py:22:0: C0116: Missing function or method docstring (missing-function-docstring)
+db.py:22:0: W0102: Dangerous default value [] as argument (dangerous-default-value)
 ************* Module movies
 movies.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 movies.py:3:0: C0116: Missing function or method docstring (missing-function-docstring)
@@ -81,8 +81,8 @@ users.py:27:0: C0116: Missing function or method docstring (missing-function-doc
 users.py:31:0: C0116: Missing function or method docstring (missing-function-docstring)
 users.py:36:0: C0116: Missing function or method docstring (missing-function-docstring)
 
-Your code has been rated at 8.37/10
-
+Your code has been rated at 8.38/10
+```
 
 Seuraavassa käyn läpi raportin ilmoitukset. Moni ilmoitus koskee samaa asiaa, joten käsittelemme samanlaiset ilmoitukset yhteisesti.
 
@@ -130,8 +130,10 @@ Ilmoitukset koskevat esimerkiksi seuraavaa funktiota:
 ```python
 def query(sql, params=[]):
     con = get_connection()
-    result = con.execute(sql, params).fetchall()
-    con.close()
+    try:
+        result = con.execute(sql, params).fetchall()
+    finally:
+        con.close()
     return result
 ```
 
