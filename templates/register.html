@@ -8,16 +8,21 @@
 <form action="/create" method="post">
   <p>
     <label for="username">Tunnus</label>: <br />
-    <input type="text" name="username" id="username" value="{{ filled.username }}" maxlength="30" required />
+    <input type="text" name="username" id="username" value="{{ filled.username }}" maxlength="30" autocomplete="username" required />
   </p>
   <p>
     <label for="password1">Salasana</label>: <br />
-    <input type="password" name="password1" id="password1" maxlength="100" required />
+    <input type="password" name="password1" id="password1" maxlength="100" autocomplete="new-password" required />
   </p>
   <p>
     <label for="password2">Salasana uudestaan</label>: <br />
-    <input type="password" name="password2" id="password2" maxlength="100" required />
+    <input type="password" name="password2" id="password2" maxlength="100" autocomplete="new-password" required />
   </p>
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
   <input type="submit" value="Luo tunnus" />
 </form>
+
+<p>
+  Onko sinulla jo tunnus? <a href="/login">Kirjaudu sisään</a>.
+</p>
 {% endblock %}

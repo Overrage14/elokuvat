@@ -19,6 +19,17 @@ app.secret_key = config.secret_key
 
 page_size = 10
 
+@app.before_request
+def prepare_session():
+    if request.endpoint == "static":
+        return
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(16)
+    user_id = session.get("user_id")
+    if user_id is not None and not users.get_user(user_id):
+        session.clear()
+        session["csrf_token"] = secrets.token_hex(16)
+
 def get_page(item_count):
     page = request.args.get("page", "1")
     if not page.isdigit():
@@ -33,6 +44,20 @@ def require_login():
     if "user_id" not in session:
         abort(403)
 
+def redirect_to_login():
+    flash("Kirjaudu sisään jatkaaksesi.", "info")
+    return redirect("/login?next_page=" + quote(request.path))
+
+def get_next_page(default="/"):
+    next_page = request.values.get("next_page", default)
+    if not next_page.startswith("/") or next_page.startswith("//"):
+        return default
+    if "\\" in next_page:
+        return default
+    if next_page in ("/login", "/register", "/create", "/logout"):
+        return default
+    return next_page
+
 def check_csrf():
     token = request.form.get("csrf_token")
     if not token or token != session.get("csrf_token"):
@@ -40,7 +65,7 @@ def check_csrf():
 
 def flash_errors(errors):
     for error in errors:
-        flash(error)
+        flash(error, "error")
 
 @app.template_filter()
 def show_lines(content):
@@ -83,7 +108,9 @@ def get_selected_genres():
     return genre_ids
 
 def get_selected_age_rating():
-    valid_ids = {age_rating["id"] for age_rating in movies.get_all_age_ratings()}
+    valid_ids = {
+        age_rating["id"] for age_rating in movies.get_all_age_ratings()
+    }
     entry = request.form.get("age_rating", "").strip()
     if not entry:
         return None
@@ -97,18 +124,24 @@ def render_movie_page(movie, filled_review=None):
     movie_reviews = reviews.get_reviews(movie["id"])
     average_rating = reviews.get_average_rating(movie["id"])
     review_count = reviews.get_review_count(movie["id"])
+    user_id = session.get("user_id")
+    user_reviewed = any(review["user_id"] == user_id
+                        for review in movie_reviews)
     return render_template("show_movie.html", movie=movie, genres=genres,
                            age_ratings=age_ratings, reviews=movie_reviews,
                            average_rating=average_rating,
                            review_count=review_count,
+                           user_reviewed=user_reviewed,
                            filled_review=filled_review or {})
 
 @app.route("/")
 def index():
-    page, page_count = get_page(movies.get_movies_count())
+    movie_count = movies.get_movies_count()
+    page, page_count = get_page(movie_count)
     all_movies = movies.get_movies(page, page_size)
     return render_template("index.html", movies=all_movies, page=page,
-                           page_count=page_count, page_url="/?")
+                           page_count=page_count, page_url="/?",
+                           movie_count=movie_count)
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
@@ -130,12 +163,13 @@ def find_movie():
     genre_id = request.args.get("genre_id", "").strip()
     genres = movies.get_all_genres()
     results = []
+    movie_count = 0
     page = None
     page_count = None
     page_url = "/find_movie?"
 
     if len(query) > 100:
-        flash("VIRHE: hakusana voi olla enintään 100 merkkiä")
+        flash("VIRHE: hakusana voi olla enintään 100 merkkiä", "error")
         query = ""
 
     if query or genre_id:
@@ -153,7 +187,8 @@ def find_movie():
             page_url += "genre_id=" + str(genre_id) + "&"
     return render_template("find_movie.html", query=query, results=results,
                            genres=genres, genre_id=genre_id, page=page,
-                           page_count=page_count, page_url=page_url)
+                           page_count=page_count, page_url=page_url,
+                           movie_count=movie_count)
 
 @app.route("/movie/<int:movie_id>")
 def show_movie(movie_id):
@@ -164,7 +199,8 @@ def show_movie(movie_id):
 
 @app.route("/new_movie")
 def new_movie():
-    require_login()
+    if "user_id" not in session:
+        return redirect_to_login()
     genres = movies.get_all_genres()
     age_ratings = movies.get_all_age_ratings()
     return render_template("new_movie.html", genres=genres,
@@ -192,12 +228,13 @@ def create_movie():
 
     movie_id = movies.add_movie(title, int(year), description,
                                 session["user_id"], genre_ids, age_rating_id)
-    flash("Elokuvan lisääminen onnistui")
+    flash("Elokuvan lisääminen onnistui", "success")
     return redirect("/movie/" + str(movie_id))
 
 @app.route("/edit_movie/<int:movie_id>")
 def edit_movie(movie_id):
-    require_login()
+    if "user_id" not in session:
+        return redirect_to_login()
     movie = movies.get_movie(movie_id)
     if not movie:
         abort(404)
@@ -243,12 +280,13 @@ def update_movie():
 
     movies.update_movie(movie["id"], title, int(year), description,
                         genre_ids, age_rating_id)
-    flash("Elokuvan muokkaaminen onnistui")
+    flash("Elokuvan muokkaaminen onnistui", "success")
     return redirect("/movie/" + str(movie["id"]))
 
 @app.route("/remove_movie/<int:movie_id>", methods=["GET", "POST"])
 def remove_movie(movie_id):
-    require_login()
+    if "user_id" not in session:
+        return redirect_to_login()
 
     movie = movies.get_movie(movie_id)
     if not movie:
@@ -263,7 +301,7 @@ def remove_movie(movie_id):
         check_csrf()
         if "remove" in request.form:
             movies.remove_movie(movie_id)
-            flash("Elokuvan poistaminen onnistui")
+            flash("Elokuvan poistaminen onnistui", "success")
             return redirect("/")
         return redirect("/movie/" + str(movie_id))
 
@@ -297,10 +335,10 @@ def create_review():
         reviews.add_review(movie["id"], session["user_id"], int(rating),
                            comment)
     except sqlite3.IntegrityError:
-        flash("VIRHE: olet jo antanut arvostelun tälle elokuvalle")
+        flash("VIRHE: olet jo antanut arvostelun tälle elokuvalle", "error")
         return render_movie_page(movie, filled_review)
 
-    flash("Arvostelun lähettäminen onnistui")
+    flash("Arvostelun lähettäminen onnistui", "success")
     return redirect("/movie/" + str(movie["id"]))
 
 @app.route("/register")
@@ -309,6 +347,8 @@ def register():
 
 @app.route("/create", methods=["POST"])
 def create():
+    check_csrf()
+
     username = request.form.get("username", "").strip()
     password1 = request.form.get("password1", "")
     password2 = request.form.get("password2", "")
@@ -337,18 +377,23 @@ def create():
     try:
         users.create_user(username, password1)
     except sqlite3.IntegrityError:
-        flash("VIRHE: tunnus on jo varattu")
+        flash("VIRHE: tunnus on jo varattu", "error")
         return render_template("register.html", filled={"username": username})
 
-    flash("Tunnuksen luominen onnistui, voit nyt kirjautua sisään")
+    flash("Tunnuksen luominen onnistui, voit nyt kirjautua sisään", "success")
     return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    next_page = get_next_page()
+
     if request.method == "GET":
-        return render_template("login.html", filled={})
+        return render_template("login.html", filled={},
+                               next_page=next_page)
 
     if request.method == "POST":
+        check_csrf()
+
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
         errors = []
@@ -361,22 +406,22 @@ def login():
         if errors:
             flash_errors(errors)
             return render_template("login.html",
-                                   filled={"username": username})
+                                   filled={"username": username},
+                                   next_page=next_page)
 
         user_id = users.check_login(username, password)
         if user_id:
             session["user_id"] = user_id
             session["username"] = username
             session["csrf_token"] = secrets.token_hex(16)
-            return redirect("/")
-        flash("VIRHE: väärä tunnus tai salasana")
-        return render_template("login.html", filled={"username": username})
+            return redirect(next_page)
+        flash("VIRHE: väärä tunnus tai salasana", "error")
+        return render_template("login.html", filled={"username": username},
+                               next_page=next_page)
 
 @app.route("/logout")
 def logout():
-    if "user_id" in session:
-        del session["user_id"]
-        del session["username"]
+    session.clear()
     return redirect("/")
 
 if __name__ == "__main__":

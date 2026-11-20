@@ -40,6 +40,7 @@
 {% endif %}
 </p>
 
+{% if reviews %}
 <ul>
 {% for review in reviews %}
   <li>
@@ -48,8 +49,14 @@
   </li>
 {% endfor %}
 </ul>
+{% endif %}
 
 {% if session.user_id %}
+  {% if user_reviewed %}
+<p>
+  Olet jo antanut arvostelun tälle elokuvalle.
+</p>
+  {% else %}
 <h3>Uusi arvostelu</h3>
 
 <form action="/create_review" method="post">
@@ -65,5 +72,10 @@
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
   <input type="submit" value="Lähetä arvostelu" />
 </form>
+  {% endif %}
+{% else %}
+<p>
+  <a href="/login?next_page=/movie/{{ movie.id }}">Kirjaudu sisään</a> antaaksesi arvostelun.
+</p>
 {% endif %}
 {% endblock %}

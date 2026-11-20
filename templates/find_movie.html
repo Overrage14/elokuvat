@@ -29,6 +29,10 @@
 {% if query or genre_id %}
 <h3>Tulokset</h3>
 
+<p>
+  Hakuehtoja vastaavia elokuvia: {{ movie_count }}
+</p>
+
 {% if results %}
 {% for movie in results %}
 <div class="movie">
