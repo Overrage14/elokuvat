@@ -34,10 +34,13 @@ def require_login():
         abort(403)
 
 def check_csrf():
-    if "csrf_token" not in request.form:
+    token = request.form.get("csrf_token")
+    if not token or token != session.get("csrf_token"):
         abort(403)
-    if request.form["csrf_token"] != session["csrf_token"]:
-        abort(403)
+
+def flash_errors(errors):
+    for error in errors:
+        flash(error)
 
 @app.template_filter()
 def show_lines(content):
@@ -46,24 +49,33 @@ def show_lines(content):
     return markupsafe.Markup(content)
 
 def validate_movie_data():
-    title = request.form["title"]
-    if not title or len(title) > 50:
-        flash("VIRHE: lisää elokuvan nimi (enintään 50 merkkiä)")
-        return None
-    year = request.form["year"]
-    if not re.search("^[0-9]{4}$", year) or not 1888 <= int(year) <= 2100:
-        flash("VIRHE: lisää kelvollinen valmistumisvuosi (1888-2100)")
-        return None
-    description = request.form["description"]
-    if not description or len(description) > 1000:
-        flash("VIRHE: lisää kuvaus (enintään 1000 merkkiä)")
-        return None
-    return title, int(year), description
+    title = request.form.get("title", "").strip()
+    year = request.form.get("year", "").strip()
+    description = request.form.get("description", "").strip()
+    errors = []
+
+    if not title:
+        errors.append("VIRHE: lisää elokuvan nimi")
+    elif len(title) > 50:
+        errors.append("VIRHE: elokuvan nimi voi olla enintään 50 merkkiä")
+
+    if not re.search("^[0-9]{4}$", year):
+        errors.append("VIRHE: lisää kelvollinen valmistumisvuosi (1888-2100)")
+    elif not 1888 <= int(year) <= 2100:
+        errors.append("VIRHE: valmistumisvuoden tulee olla välillä 1888-2100")
+
+    if not description:
+        errors.append("VIRHE: lisää kuvaus")
+    elif len(description) > 1000:
+        errors.append("VIRHE: kuvaus voi olla enintään 1000 merkkiä")
+
+    return title, year, description, errors
 
 def get_selected_genres():
     valid_ids = {genre["id"] for genre in movies.get_all_genres()}
     genre_ids = []
     for entry in request.form.getlist("genres"):
+        entry = entry.strip()
         if entry:
             if not entry.isdigit() or int(entry) not in valid_ids:
                 abort(403)
@@ -72,12 +84,24 @@ def get_selected_genres():
 
 def get_selected_age_rating():
     valid_ids = {age_rating["id"] for age_rating in movies.get_all_age_ratings()}
-    entry = request.form["age_rating"]
+    entry = request.form.get("age_rating", "").strip()
     if not entry:
         return None
     if not entry.isdigit() or int(entry) not in valid_ids:
         abort(403)
     return int(entry)
+
+def render_movie_page(movie, filled_review=None):
+    genres = movies.get_genres(movie["id"])
+    age_ratings = movies.get_age_ratings(movie["id"])
+    movie_reviews = reviews.get_reviews(movie["id"])
+    average_rating = reviews.get_average_rating(movie["id"])
+    review_count = reviews.get_review_count(movie["id"])
+    return render_template("show_movie.html", movie=movie, genres=genres,
+                           age_ratings=age_ratings, reviews=movie_reviews,
+                           average_rating=average_rating,
+                           review_count=review_count,
+                           filled_review=filled_review or {})
 
 @app.route("/")
 def index():
@@ -102,13 +126,18 @@ def show_user(user_id):
 
 @app.route("/find_movie")
 def find_movie():
-    query = request.args.get("query", "")
-    genre_id = request.args.get("genre_id")
+    query = request.args.get("query", "").strip()
+    genre_id = request.args.get("genre_id", "").strip()
     genres = movies.get_all_genres()
     results = []
     page = None
     page_count = None
     page_url = "/find_movie?"
+
+    if len(query) > 100:
+        flash("VIRHE: hakusana voi olla enintään 100 merkkiä")
+        query = ""
+
     if query or genre_id:
         if genre_id:
             valid_ids = {genre["id"] for genre in genres}
@@ -131,38 +160,39 @@ def show_movie(movie_id):
     movie = movies.get_movie(movie_id)
     if not movie:
         abort(404)
-    genres = movies.get_genres(movie_id)
-    age_ratings = movies.get_age_ratings(movie_id)
-    movie_reviews = reviews.get_reviews(movie_id)
-    average_rating = reviews.get_average_rating(movie_id)
-    review_count = reviews.get_review_count(movie_id)
-    return render_template("show_movie.html", movie=movie, genres=genres,
-                           age_ratings=age_ratings, reviews=movie_reviews,
-                           average_rating=average_rating,
-                           review_count=review_count)
+    return render_movie_page(movie)
 
 @app.route("/new_movie")
 def new_movie():
     require_login()
     genres = movies.get_all_genres()
     age_ratings = movies.get_all_age_ratings()
-    return render_template("new_movie.html", genres=genres, age_ratings=age_ratings)
+    return render_template("new_movie.html", genres=genres,
+                           age_ratings=age_ratings, filled={},
+                           genre_ids=[], age_rating_id=None)
 
 @app.route("/create_movie", methods=["POST"])
 def create_movie():
     require_login()
     check_csrf()
 
-    data = validate_movie_data()
-    if not data:
-        return redirect("/new_movie")
-
-    title, year, description = data
+    title, year, description, errors = validate_movie_data()
     genre_ids = get_selected_genres()
     age_rating_id = get_selected_age_rating()
 
-    movie_id = movies.add_movie(title, year, description,
+    if errors:
+        flash_errors(errors)
+        return render_template("new_movie.html",
+                               genres=movies.get_all_genres(),
+                               age_ratings=movies.get_all_age_ratings(),
+                               filled={"title": title, "year": year,
+                                       "description": description},
+                               genre_ids=genre_ids,
+                               age_rating_id=age_rating_id)
+
+    movie_id = movies.add_movie(title, int(year), description,
                                 session["user_id"], genre_ids, age_rating_id)
+    flash("Elokuvan lisääminen onnistui")
     return redirect("/movie/" + str(movie_id))
 
 @app.route("/edit_movie/<int:movie_id>")
@@ -179,34 +209,42 @@ def edit_movie(movie_id):
     genre_ids = [genre["id"] for genre in movies.get_genres(movie_id)]
     age_ratings = movies.get_age_ratings(movie_id)
     age_rating_id = age_ratings[0]["id"] if age_ratings else None
+    filled = {"title": movie["title"], "year": movie["year"],
+              "description": movie["description"]}
 
     return render_template("edit_movie.html", movie=movie, genres=all_genres,
                            age_ratings=all_age_ratings, genre_ids=genre_ids,
-                           age_rating_id=age_rating_id)
+                           age_rating_id=age_rating_id, filled=filled)
 
 @app.route("/update_movie", methods=["POST"])
 def update_movie():
     require_login()
     check_csrf()
 
-    movie_id = request.form["movie_id"]
-    movie = movies.get_movie(movie_id)
+    movie = movies.get_movie(request.form.get("movie_id", ""))
     if not movie:
         abort(404)
     if movie["user_id"] != session["user_id"]:
         abort(403)
 
-    data = validate_movie_data()
-    if not data:
-        return redirect("/edit_movie/" + str(movie["id"]))
-
-    title, year, description = data
+    title, year, description, errors = validate_movie_data()
     genre_ids = get_selected_genres()
     age_rating_id = get_selected_age_rating()
 
-    movies.update_movie(movie_id, title, year, description,
+    if errors:
+        flash_errors(errors)
+        return render_template("edit_movie.html", movie=movie,
+                               genres=movies.get_all_genres(),
+                               age_ratings=movies.get_all_age_ratings(),
+                               filled={"title": title, "year": year,
+                                       "description": description},
+                               genre_ids=genre_ids,
+                               age_rating_id=age_rating_id)
+
+    movies.update_movie(movie["id"], title, int(year), description,
                         genre_ids, age_rating_id)
-    return redirect("/movie/" + str(movie_id))
+    flash("Elokuvan muokkaaminen onnistui")
+    return redirect("/movie/" + str(movie["id"]))
 
 @app.route("/remove_movie/<int:movie_id>", methods=["GET", "POST"])
 def remove_movie(movie_id):
@@ -225,6 +263,7 @@ def remove_movie(movie_id):
         check_csrf()
         if "remove" in request.form:
             movies.remove_movie(movie_id)
+            flash("Elokuvan poistaminen onnistui")
             return redirect("/")
         return redirect("/movie/" + str(movie_id))
 
@@ -233,60 +272,96 @@ def create_review():
     require_login()
     check_csrf()
 
-    movie_id = request.form["movie_id"]
-    movie = movies.get_movie(movie_id)
+    movie = movies.get_movie(request.form.get("movie_id", ""))
     if not movie:
         abort(403)
 
-    rating = request.form["rating"]
+    rating = request.form.get("rating", "").strip()
+    comment = request.form.get("comment", "").strip()
+    errors = []
+
     if not re.search("^(10|[1-9])$", rating):
-        flash("VIRHE: arvosanan tulee olla kokonaisluku välillä 1-10")
-        return redirect("/movie/" + str(movie["id"]))
-    comment = request.form["comment"]
-    if not comment or len(comment) > 1000:
-        flash("VIRHE: lisää kommentti (enintään 1000 merkkiä)")
-        return redirect("/movie/" + str(movie["id"]))
+        errors.append("VIRHE: arvosanan tulee olla kokonaisluku välillä 1-10")
+
+    if not comment:
+        errors.append("VIRHE: lisää kommentti")
+    elif len(comment) > 1000:
+        errors.append("VIRHE: kommentti voi olla enintään 1000 merkkiä")
+
+    filled_review = {"rating": rating, "comment": comment}
+    if errors:
+        flash_errors(errors)
+        return render_movie_page(movie, filled_review)
 
     try:
-        reviews.add_review(int(movie_id), session["user_id"], int(rating),
+        reviews.add_review(movie["id"], session["user_id"], int(rating),
                            comment)
     except sqlite3.IntegrityError:
         flash("VIRHE: olet jo antanut arvostelun tälle elokuvalle")
+        return render_movie_page(movie, filled_review)
+
+    flash("Arvostelun lähettäminen onnistui")
     return redirect("/movie/" + str(movie["id"]))
 
 @app.route("/register")
 def register():
-    return render_template("register.html")
+    return render_template("register.html", filled={})
 
 @app.route("/create", methods=["POST"])
 def create():
-    username = request.form["username"]
-    password1 = request.form["password1"]
-    password2 = request.form["password2"]
-    if not username or len(username) > 30:
-        abort(403)
-    if not password1 or len(password1) > 100:
-        abort(403)
+    username = request.form.get("username", "").strip()
+    password1 = request.form.get("password1", "")
+    password2 = request.form.get("password2", "")
+    errors = []
+
+    if not username:
+        errors.append("VIRHE: lisää tunnus")
+    elif len(username) > 30:
+        errors.append("VIRHE: tunnus voi olla enintään 30 merkkiä")
+
+    if not password1.strip():
+        errors.append("VIRHE: lisää salasana")
+    elif len(password1) > 100:
+        errors.append("VIRHE: salasana voi olla enintään 100 merkkiä")
+
+    if not password2.strip():
+        errors.append("VIRHE: toista salasana")
+
     if password1 != password2:
-        flash("VIRHE: salasanat eivät ole samat")
-        return redirect("/register")
+        errors.append("VIRHE: salasanat eivät ole samat")
+
+    if errors:
+        flash_errors(errors)
+        return render_template("register.html", filled={"username": username})
 
     try:
         users.create_user(username, password1)
     except sqlite3.IntegrityError:
         flash("VIRHE: tunnus on jo varattu")
-        return redirect("/register")
+        return render_template("register.html", filled={"username": username})
 
+    flash("Tunnuksen luominen onnistui, voit nyt kirjautua sisään")
     return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("login.html", filled={})
 
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        errors = []
+
+        if not username:
+            errors.append("VIRHE: lisää tunnus")
+        if not password:
+            errors.append("VIRHE: lisää salasana")
+
+        if errors:
+            flash_errors(errors)
+            return render_template("login.html",
+                                   filled={"username": username})
 
         user_id = users.check_login(username, password)
         if user_id:
@@ -295,7 +370,7 @@ def login():
             session["csrf_token"] = secrets.token_hex(16)
             return redirect("/")
         flash("VIRHE: väärä tunnus tai salasana")
-        return redirect("/login")
+        return render_template("login.html", filled={"username": username})
 
 @app.route("/logout")
 def logout():

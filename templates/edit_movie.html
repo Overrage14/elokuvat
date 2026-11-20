@@ -9,15 +9,15 @@
 <form action="/update_movie" method="post">
   <p>
     <label for="title">Nimi</label>: <br />
-    <input type="text" name="title" id="title" value="{{ movie.title }}" maxlength="50" required />
+    <input type="text" name="title" id="title" value="{{ filled.title }}" maxlength="50" required />
   </p>
   <p>
     <label for="year">Valmistumisvuosi</label>: <br />
-    <input type="text" name="year" id="year" value="{{ movie.year }}" size="6" pattern="[1-9][0-9]{3}" required />
+    <input type="text" name="year" id="year" value="{{ filled.year }}" size="6" pattern="[1-9][0-9]{3}" required />
   </p>
   <p>
     <label for="description">Kuvaus</label>: <br />
-    <textarea name="description" id="description" rows="8" cols="60" maxlength="1000" required>{{ movie.description }}</textarea>
+    <textarea name="description" id="description" rows="8" cols="60" maxlength="1000" required>{{ filled.description }}</textarea>
   </p>
   <p>
     Genre: <br />

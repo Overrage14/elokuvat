@@ -55,11 +55,11 @@
 <form action="/create_review" method="post">
   <p>
     <label for="rating">Arvosana</label>:
-    <input type="text" name="rating" id="rating" size="4" pattern="(10|[1-9])" required /> / 10
+    <input type="text" name="rating" id="rating" value="{{ filled_review.rating }}" size="4" pattern="(10|[1-9])" required /> / 10
   </p>
   <p>
     <label for="comment">Kommentti</label>: <br />
-    <textarea name="comment" id="comment" rows="4" cols="60" maxlength="1000" required></textarea>
+    <textarea name="comment" id="comment" rows="4" cols="60" maxlength="1000" required>{{ filled_review.comment }}</textarea>
   </p>
   <input type="hidden" name="movie_id" value="{{ movie.id }}" />
   <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
