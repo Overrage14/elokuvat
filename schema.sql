@@ -1,45 +1,45 @@
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
-    username TEXT UNIQUE,
-    password_hash TEXT
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
 );
 
 CREATE TABLE movies (
     id INTEGER PRIMARY KEY,
-    title TEXT,
-    year INTEGER,
-    description TEXT,
-    user_id INTEGER REFERENCES users
+    title TEXT NOT NULL,
+    year INTEGER NOT NULL CHECK (year BETWEEN 1888 AND 2100),
+    description TEXT NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users
 );
 
 CREATE TABLE reviews (
     id INTEGER PRIMARY KEY,
-    movie_id INTEGER REFERENCES movies,
-    user_id INTEGER REFERENCES users,
-    rating INTEGER,
-    comment TEXT,
+    movie_id INTEGER NOT NULL REFERENCES movies,
+    user_id INTEGER NOT NULL REFERENCES users,
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 10),
+    comment TEXT NOT NULL,
     UNIQUE (movie_id, user_id)
 );
 
 CREATE TABLE genres (
     id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE
+    name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE age_ratings (
     id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE
+    name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE movie_genres (
-    movie_id INTEGER REFERENCES movies,
-    genre_id INTEGER REFERENCES genres,
+    movie_id INTEGER NOT NULL REFERENCES movies,
+    genre_id INTEGER NOT NULL REFERENCES genres,
     UNIQUE (movie_id, genre_id)
 );
 
 CREATE TABLE movie_age_ratings (
-    movie_id INTEGER REFERENCES movies,
-    age_rating_id INTEGER REFERENCES age_ratings,
+    movie_id INTEGER NOT NULL REFERENCES movies,
+    age_rating_id INTEGER NOT NULL REFERENCES age_ratings,
     UNIQUE (movie_id)
 );
 

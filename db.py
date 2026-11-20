@@ -16,7 +16,9 @@ def print_query_time(sql, start):
     one_line = " ".join(sql.split())
     print(f"{elapsed:.1f} ms  {one_line}", flush=True)
 
-def execute(sql, params=[]):
+def execute(sql, params=None):
+    if params is None:
+        params = []
     start = time.perf_counter()
     con = get_connection()
     try:
@@ -31,7 +33,9 @@ def execute(sql, params=[]):
 def last_insert_id():
     return g.last_insert_id
 
-def query(sql, params=[]):
+def query(sql, params=None):
+    if params is None:
+        params = []
     start = time.perf_counter()
     con = get_connection()
     try:
