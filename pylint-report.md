@@ -9,26 +9,28 @@ app.py:20:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE nami
 app.py:22:0: C0116: Missing function or method docstring (missing-function-docstring)
 app.py:32:0: C0116: Missing function or method docstring (missing-function-docstring)
 app.py:36:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:43:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:48:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:63:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:73:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:83:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:90:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:104:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:130:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:145:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:152:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:169:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:188:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:212:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:212:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:232:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:258:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:262:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:283:0: C0116: Missing function or method docstring (missing-function-docstring)
-app.py:283:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:301:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:41:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:46:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:51:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:74:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:85:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:94:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:107:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:114:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:128:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:159:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:166:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:175:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:199:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:220:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:250:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:250:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:271:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:307:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:311:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:347:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:347:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:376:0: C0116: Missing function or method docstring (missing-function-docstring)
 ************* Module config
 config.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 config.py:1:0: C0103: Constant name "secret_key" doesn't conform to UPPER_CASE naming style (invalid-name)
@@ -83,7 +85,7 @@ users.py:27:0: C0116: Missing function or method docstring (missing-function-doc
 users.py:31:0: C0116: Missing function or method docstring (missing-function-docstring)
 users.py:36:0: C0116: Missing function or method docstring (missing-function-docstring)
 
-Your code has been rated at 8.41/10
+Your code has been rated at 8.50/10
 ```
 
 Seuraavassa käyn läpi raportin ilmoitukset. Moni ilmoitus koskee samaa asiaa, joten käsittelemme samanlaiset ilmoitukset yhteisesti.
@@ -94,7 +96,7 @@ Suurin osa raportin ilmoituksista koskee puuttuvia docstring-kommentteja:
 
 ```
 app.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-app.py:19:0: C0116: Missing function or method docstring (missing-function-docstring)
+app.py:22:0: C0116: Missing function or method docstring (missing-function-docstring)
 ...
 ```
 
@@ -105,7 +107,7 @@ Ilmoitus C0114 koskee tiedoston alussa olevan kommentin (docstring) puuttumista 
 Raportissa on seuraavat ilmoitukset liittyen vakionimiin:
 
 ```
-app.py:17:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
+app.py:20:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
 config.py:1:0: C0103: Constant name "secret_key" doesn't conform to UPPER_CASE naming style (invalid-name)
 db.py:6:0: C0103: Constant name "time_queries" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:6:0: C0103: Constant name "user_count" doesn't conform to UPPER_CASE naming style (invalid-name)
@@ -150,8 +152,8 @@ Parametrin oletusarvo `[]` on tyhjä lista. Ongelmaksi voisi tulla, että sama o
 Raportissa on seuraavat ilmoitukset:
 
 ```
-app.py:180:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:245:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:250:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:347:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
 ```
 
 Ensimmäinen ilmoitus koskee seuraavaa funktiota:
