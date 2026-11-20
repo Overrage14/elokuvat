@@ -21,9 +21,8 @@ movies.py:61:0: R0917: Too many positional arguments (6/5) (too-many-positional-
 seed.py:8:0: C0103: Constant name "user_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:9:0: C0103: Constant name "movie_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:10:0: C0103: Constant name "review_count" doesn't conform to UPPER_CASE naming style (invalid-name)
-seed.py:12:0: R0914: Too many local variables (19/15) (too-many-locals)
 
-Your code has been rated at 9.75/10
+Your code has been rated at 9.78/10
 ```
 
 Seuraavassa käyn läpi raportin ilmoitukset. Moni ilmoitus koskee samaa asiaa,
@@ -113,17 +112,3 @@ mutta tässä se heikentäisi koodin selkeyttä, koska jokainen parametri kuvaa
 omaa, selkeästi nimettyä asiaa. Toinen ilmoitusten pari koskee vastaavasti
 funktiota `update_movie`, jolla on samat parametrit paitsi että
 `user_id`-parametrin tilalla on `movie_id`-parametri.
-
-## Liian monta paikallista muuttujaa
-
-Raportissa on seuraava ilmoitus:
-
-```
-seed.py:12:0: R0914: Too many local variables (19/15) (too-many-locals)
-```
-
-Ilmoitus koskee tiedoston `seed.py` funktiota `main`, joka luo tietokantaan
-suuren määrän testidataa. Funktiossa on paikallisia muuttujia esimerkiksi
-lisättävien käyttäjien, elokuvien ja arvostelujen tietorakenteille. Funktion
-voisi jakaa useampaan funktioon, mutta koska kyseessä on vain testidatan
-luomiseen tarkoitettu apuskripti, en nähnyt tätä tarpeellisena.

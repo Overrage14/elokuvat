@@ -9,12 +9,8 @@ user_count = 1000
 movie_count = 100000
 review_count = 500000
 
-def main():
-    """Create test users, movies, classifications, and reviews."""
-    random.seed(12345)
-    con = sqlite3.connect("database.db")
-    con.execute("PRAGMA foreign_keys = ON")
-
+def add_users(con):
+    """Add test users to the database."""
     print("Adding users:", user_count)
     password_hash = generate_password_hash("salasana")
     users = [("kayttaja" + str(i), password_hash)
@@ -22,6 +18,8 @@ def main():
     con.executemany(
         "INSERT INTO users (username, password_hash) VALUES (?, ?)", users)
 
+def add_movies(con):
+    """Add test movies to the database."""
     print("Adding movies:", movie_count)
     movies = []
     for i in range(1, movie_count + 1):
@@ -35,6 +33,8 @@ def main():
         """INSERT INTO movies (title, year, description, user_id)
            VALUES (?, ?, ?, ?)""", movies)
 
+def add_movie_genres(con):
+    """Add random genre classifications to test movies."""
     print("Adding genres:", movie_count)
     movie_genres = set()
     for movie_id in range(1, movie_count + 1):
@@ -44,6 +44,8 @@ def main():
         "INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)",
         movie_genres)
 
+def add_movie_age_ratings(con):
+    """Add random age ratings to test movies."""
     print("Adding age ratings:", movie_count)
     movie_age_ratings = set()
     for movie_id in range(1, movie_count + 1):
@@ -54,6 +56,8 @@ def main():
         """INSERT INTO movie_age_ratings (movie_id, age_rating_id)
            VALUES (?, ?)""", movie_age_ratings)
 
+def add_reviews(con):
+    """Add random reviews to test movies."""
     print("Adding reviews:", review_count)
     reviews = []
     samples = random.sample(range(movie_count * user_count), review_count)
@@ -67,6 +71,18 @@ def main():
     con.executemany(
         """INSERT INTO reviews (movie_id, user_id, rating, comment)
            VALUES (?, ?, ?, ?)""", reviews)
+
+def main():
+    """Create test users, movies, classifications, and reviews."""
+    random.seed(12345)
+    con = sqlite3.connect("database.db")
+    con.execute("PRAGMA foreign_keys = ON")
+
+    add_users(con)
+    add_movies(con)
+    add_movie_genres(con)
+    add_movie_age_ratings(con)
+    add_reviews(con)
 
     con.commit()
     con.close()
