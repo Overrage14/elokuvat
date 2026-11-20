@@ -1,14 +1,19 @@
+"""Database operations for movies and their classifications."""
+
 import db
 
 def get_all_genres():
+    """Return all genres ordered by ID."""
     sql = "SELECT id, name FROM genres ORDER BY id"
     return db.query(sql)
 
 def get_all_age_ratings():
+    """Return all age ratings ordered by ID."""
     sql = "SELECT id, name FROM age_ratings ORDER BY id"
     return db.query(sql)
 
 def get_movie(movie_id):
+    """Return a movie with its owner, or None if not found."""
     sql = """SELECT movies.id, movies.title, movies.year, movies.description,
                     users.id user_id, users.username
              FROM movies, users
@@ -17,6 +22,7 @@ def get_movie(movie_id):
     return result[0] if result else None
 
 def get_genres(movie_id):
+    """Return the genres of a movie."""
     sql = """SELECT genres.id, genres.name
              FROM genres, movie_genres
              WHERE genres.id = movie_genres.genre_id AND
@@ -25,6 +31,7 @@ def get_genres(movie_id):
     return db.query(sql, [movie_id])
 
 def get_age_ratings(movie_id):
+    """Return the age ratings of a movie."""
     sql = """SELECT age_ratings.id, age_ratings.name
              FROM age_ratings, movie_age_ratings
              WHERE age_ratings.id = movie_age_ratings.age_rating_id AND
@@ -33,6 +40,7 @@ def get_age_ratings(movie_id):
     return db.query(sql, [movie_id])
 
 def add_movie(title, year, description, user_id, genre_ids, age_rating_id):
+    """Add a movie and its classifications, and return its ID."""
     sql = """INSERT INTO movies (title, year, description, user_id)
              VALUES (?, ?, ?, ?)"""
     db.execute(sql, [title, year, description, user_id])
@@ -51,6 +59,7 @@ def add_movie(title, year, description, user_id, genre_ids, age_rating_id):
     return movie_id
 
 def update_movie(movie_id, title, year, description, genre_ids, age_rating_id):
+    """Update a movie and replace its classifications."""
     sql = """UPDATE movies SET title = ?,
                               year = ?,
                               description = ?
@@ -71,6 +80,7 @@ def update_movie(movie_id, title, year, description, genre_ids, age_rating_id):
         db.execute(sql, [movie_id, age_rating_id])
 
 def remove_movie(movie_id):
+    """Remove a movie and all data that references it."""
     sql = "DELETE FROM reviews WHERE movie_id = ?"
     db.execute(sql, [movie_id])
     sql = "DELETE FROM movie_genres WHERE movie_id = ?"
@@ -81,6 +91,7 @@ def remove_movie(movie_id):
     db.execute(sql, [movie_id])
 
 def find_conditions(query, genre_id):
+    """Build WHERE conditions and parameters for movie search."""
     # Builds the WHERE conditions for keyword and genre search. The
     # conditions are fixed strings and all values are given as
     # parameters, so the dynamic construction is safe.
@@ -98,6 +109,7 @@ def find_conditions(query, genre_id):
     return conditions, params
 
 def find_movies_count(query, genre_id):
+    """Return the number of movies matching the search."""
     conditions, params = find_conditions(query, genre_id)
     sql = "SELECT COUNT(*) FROM movies"
     if conditions:
@@ -105,6 +117,7 @@ def find_movies_count(query, genre_id):
     return db.query(sql, params)[0][0]
 
 def find_movies(query, genre_id, page, page_size):
+    """Return one page of movies matching the search."""
     conditions, params = find_conditions(query, genre_id)
     sql = """SELECT movies.id, movies.title, movies.year,
                     users.id user_id, users.username
@@ -118,10 +131,12 @@ def find_movies(query, genre_id, page, page_size):
     return db.query(sql, params)
 
 def get_movies_count():
+    """Return the total number of movies."""
     sql = "SELECT COUNT(*) FROM movies"
     return db.query(sql)[0][0]
 
 def get_movies(page, page_size):
+    """Return one page of movies with review statistics."""
     offset = (page - 1) * page_size
     sql = """SELECT movies.id, movies.title, movies.year,
                     users.id user_id, users.username,

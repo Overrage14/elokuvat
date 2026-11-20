@@ -1,3 +1,5 @@
+"""Movie database web application built with Flask and SQLite."""
+
 import argparse
 import re
 import secrets
@@ -21,6 +23,7 @@ page_size = 10
 
 @app.before_request
 def prepare_session():
+    """Ensure that the session has a CSRF token and a valid user."""
     if request.endpoint == "static":
         return
     if "csrf_token" not in session:
@@ -31,6 +34,7 @@ def prepare_session():
         session["csrf_token"] = secrets.token_hex(16)
 
 def get_page(item_count):
+    """Return the requested page number and the total number of pages."""
     page = request.args.get("page", "1")
     if not page.isdigit():
         abort(403)
@@ -41,14 +45,17 @@ def get_page(item_count):
     return page, page_count
 
 def require_login():
+    """Abort the request if the user is not logged in."""
     if "user_id" not in session:
         abort(403)
 
 def redirect_to_login():
+    """Redirect to login and remember the requested page."""
     flash("Kirjaudu sisään jatkaaksesi.", "info")
     return redirect("/login?next_page=" + quote(request.path))
 
 def get_next_page(default="/"):
+    """Return a safe local URL to redirect to after login."""
     next_page = request.values.get("next_page", default)
     if not next_page.startswith("/") or next_page.startswith("//"):
         return default
@@ -59,21 +66,25 @@ def get_next_page(default="/"):
     return next_page
 
 def check_csrf():
+    """Abort the request if the CSRF token is missing or invalid."""
     token = request.form.get("csrf_token")
     if not token or token != session.get("csrf_token"):
         abort(403)
 
 def flash_errors(errors):
+    """Add all given error messages to the flash queue."""
     for error in errors:
         flash(error, "error")
 
 @app.template_filter()
 def show_lines(content):
+    """Escape text and convert newlines to HTML line breaks."""
     content = str(markupsafe.escape(content))
     content = content.replace("\n", "<br />")
     return markupsafe.Markup(content)
 
 def validate_movie_data():
+    """Validate movie form data and return values and errors."""
     title = request.form.get("title", "").strip()
     year = request.form.get("year", "").strip()
     description = request.form.get("description", "").strip()
@@ -97,6 +108,7 @@ def validate_movie_data():
     return title, year, description, errors
 
 def get_selected_genres():
+    """Return the validated genre IDs selected in the form."""
     valid_ids = {genre["id"] for genre in movies.get_all_genres()}
     genre_ids = []
     for entry in request.form.getlist("genres"):
@@ -108,6 +120,7 @@ def get_selected_genres():
     return genre_ids
 
 def get_selected_age_rating():
+    """Return the validated age rating selected in the form."""
     valid_ids = {
         age_rating["id"] for age_rating in movies.get_all_age_ratings()
     }
@@ -119,6 +132,7 @@ def get_selected_age_rating():
     return int(entry)
 
 def render_movie_page(movie, filled_review=None):
+    """Render a movie page with classifications and reviews."""
     genres = movies.get_genres(movie["id"])
     age_ratings = movies.get_age_ratings(movie["id"])
     movie_reviews = reviews.get_reviews(movie["id"])
@@ -136,6 +150,7 @@ def render_movie_page(movie, filled_review=None):
 
 @app.route("/")
 def index():
+    """Show the front page with paginated movies."""
     movie_count = movies.get_movies_count()
     page, page_count = get_page(movie_count)
     all_movies = movies.get_movies(page, page_size)
@@ -145,6 +160,7 @@ def index():
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
+    """Show a user's statistics and movies."""
     user = users.get_user(user_id)
     if not user:
         abort(404)
@@ -159,6 +175,7 @@ def show_user(user_id):
 
 @app.route("/find_movie")
 def find_movie():
+    """Search movies by keyword and genre."""
     query = request.args.get("query", "").strip()
     genre_id = request.args.get("genre_id", "").strip()
     genres = movies.get_all_genres()
@@ -192,6 +209,7 @@ def find_movie():
 
 @app.route("/movie/<int:movie_id>")
 def show_movie(movie_id):
+    """Show a single movie."""
     movie = movies.get_movie(movie_id)
     if not movie:
         abort(404)
@@ -199,6 +217,7 @@ def show_movie(movie_id):
 
 @app.route("/new_movie")
 def new_movie():
+    """Show the form for adding a new movie."""
     if "user_id" not in session:
         return redirect_to_login()
     genres = movies.get_all_genres()
@@ -209,6 +228,7 @@ def new_movie():
 
 @app.route("/create_movie", methods=["POST"])
 def create_movie():
+    """Create a new movie from the submitted form."""
     require_login()
     check_csrf()
 
@@ -233,6 +253,7 @@ def create_movie():
 
 @app.route("/edit_movie/<int:movie_id>")
 def edit_movie(movie_id):
+    """Show the form for editing an existing movie."""
     if "user_id" not in session:
         return redirect_to_login()
     movie = movies.get_movie(movie_id)
@@ -255,6 +276,7 @@ def edit_movie(movie_id):
 
 @app.route("/update_movie", methods=["POST"])
 def update_movie():
+    """Update an existing movie from the submitted form."""
     require_login()
     check_csrf()
 
@@ -285,6 +307,7 @@ def update_movie():
 
 @app.route("/remove_movie/<int:movie_id>", methods=["GET", "POST"])
 def remove_movie(movie_id):
+    """Show the removal confirmation or remove a movie."""
     if "user_id" not in session:
         return redirect_to_login()
 
@@ -307,6 +330,7 @@ def remove_movie(movie_id):
 
 @app.route("/create_review", methods=["POST"])
 def create_review():
+    """Create a review for a movie."""
     require_login()
     check_csrf()
 
@@ -343,10 +367,12 @@ def create_review():
 
 @app.route("/register")
 def register():
+    """Show the registration form."""
     return render_template("register.html", filled={})
 
 @app.route("/create", methods=["POST"])
 def create():
+    """Create a new user account."""
     check_csrf()
 
     username = request.form.get("username", "").strip()
@@ -385,6 +411,7 @@ def create():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """Show the login form or log the user in."""
     next_page = get_next_page()
 
     if request.method == "GET":
@@ -421,6 +448,7 @@ def login():
 
 @app.route("/logout")
 def logout():
+    """Log the user out and clear the session."""
     session.clear()
     return redirect("/")
 

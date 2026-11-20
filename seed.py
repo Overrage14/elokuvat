@@ -1,3 +1,5 @@
+"""Generate a large amount of test data for the application."""
+
 import random
 import sqlite3
 
@@ -8,6 +10,7 @@ movie_count = 100000
 review_count = 500000
 
 def main():
+    """Create test users, movies, classifications, and reviews."""
     random.seed(12345)
     con = sqlite3.connect("database.db")
     con.execute("PRAGMA foreign_keys = ON")
