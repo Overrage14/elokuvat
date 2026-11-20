@@ -11,7 +11,7 @@
 * Käyttäjä pystyy valitsemaan elokuvalle yhden tai useamman luokittelun:
   - Genre: toiminta, animaatio, dokumentti, draama, kauhu, komedia, romanttinen, scifi, seikkailu tai trilleri
   - Ikäraja: S, 7, 12, 16 tai 18
-* Käyttäjä pystyy antamaan elokuvalle arvostelun, joka sisältää kommentin ja arvosanan (yhden arvostelun per elokuva). Elokuvasta näytetään arvostelut ja keskimääräinen arvosana.
+* Käyttäjä pystyy antamaan elokuvalle arvostelun, joka sisältää kommentin ja arvosanan (yksi arvostelu / käyttäjä / elokuva). Elokuvasta näytetään arvostelut ja keskimääräinen arvosana.
 
 Tässä pääasiallinen tietokohde on elokuva ja toissijainen tietokohde on elokuvan arvostelu.
 
