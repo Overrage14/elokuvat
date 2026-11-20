@@ -1,39 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="fi">
 
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{% endblock %}</title>
   <link rel="stylesheet" href="/static/main.css">
 </head>
 
 <body>
-  <h1>Elokuvatietokanta</h1>
+  <header>
+    <h1><a href="/">Elokuvatietokanta</a></h1>
+  </header>
 
-  {% if session.user_id %}
-  <p>
-    Olet kirjautunut nimellä <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
-  </p>
-  {% endif %}
+  <nav aria-label="Päävalikko">
+    <ul>
+      <li><a href="/">Etusivu</a></li>
+      <li><a href="/find_movie">Etsi elokuva</a></li>
+      {% if session.user_id %}
+      <li><a href="/new_movie">Uusi elokuva</a></li>
+      <li><a href="/user/{{ session.user_id }}">Oma sivu</a></li>
+      <li><a href="/logout">Kirjaudu ulos</a></li>
+      {% else %}
+      <li><a href="/login">Kirjaudu sisään</a></li>
+      <li><a href="/register">Luo tunnus</a></li>
+      {% endif %}
+    </ul>
+  </nav>
 
-  <p>
-    <a href="/">Etusivu</a> |
-    <a href="/find_movie">Etsi elokuva</a> |
-  {% if session.user_id %}
-    <a href="/new_movie">Uusi elokuva</a> |
-    <a href="/logout">Kirjaudu ulos</a>
-  {% else %}
-    <a href="/login">Kirjaudu sisään</a> |
-    <a href="/register">Luo tunnus</a>
-  {% endif %}
-  </p>
+  <main>
+    {% if session.user_id %}
+    <p class="user-info">
+      Olet kirjautunut nimellä <a href="/user/{{ session.user_id }}">{{ session.username }}</a>
+    </p>
+    {% endif %}
 
-  {% for message in get_flashed_messages() %}
-  <div class="info">
-    {{ message }}
-  </div>
-  {% endfor %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+      <div class="flash {{ category }}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
 
-  {% block content %}{% endblock %}
+    {% block content %}{% endblock %}
+  </main>
 </body>
 
 </html>
