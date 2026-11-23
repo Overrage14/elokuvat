@@ -46,6 +46,11 @@
   <li>
     {{ review.rating }}/10, <a href="/user/{{ review.user_id }}">{{ review.username }}</a>: <br />
     {{ review.comment | show_lines }}
+  {% if review.user_id == session.user_id %}
+    <br />
+    <a href="/edit_review/{{ review.id }}">Muokkaa arvostelua</a>
+    <a href="/remove_review/{{ review.id }}">Poista arvostelu</a>
+  {% endif %}
   </li>
 {% endfor %}
 </ul>

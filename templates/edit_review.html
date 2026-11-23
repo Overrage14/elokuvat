@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}Arvostelun muokkaus{% endblock %}
+
+{% block content %}
+<h2>{{ review.movie_title }}</h2>
+<h3>Arvostelun muokkaus</h3>
+
+<form action="/update_review" method="post">
+  <p>
+    <label for="rating">Arvosana</label>:
+    <input type="text" name="rating" id="rating" value="{{ filled.rating }}" size="4" pattern="(10|[1-9])" required /> / 10
+  </p>
+  <p>
+    <label for="comment">Kommentti</label>: <br />
+    <textarea name="comment" id="comment" rows="4" cols="60" maxlength="1000" required>{{ filled.comment }}</textarea>
+  </p>
+  <input type="hidden" name="review_id" value="{{ review.id }}" />
+  <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}" />
+  <input type="submit" value="Tallenna muutokset" />
+</form>
+
+<p>
+  <a href="/movie/{{ review.movie_id }}">Takaisin elokuvaan</a>
+</p>
+{% endblock %}

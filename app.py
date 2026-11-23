@@ -107,6 +107,22 @@ def validate_movie_data():
 
     return title, year, description, errors
 
+def validate_review_data():
+    """Validate review form data and return values and errors."""
+    rating = request.form.get("rating", "").strip()
+    comment = request.form.get("comment", "").strip()
+    errors = []
+
+    if not re.search("^(10|[1-9])$", rating):
+        errors.append("VIRHE: arvosanan tulee olla kokonaisluku välillä 1-10")
+
+    if not comment:
+        errors.append("VIRHE: lisää kommentti")
+    elif len(comment) > 1000:
+        errors.append("VIRHE: kommentti voi olla enintään 1000 merkkiä")
+
+    return rating, comment, errors
+
 def get_selected_genres():
     """Return the validated genre IDs selected in the form."""
     valid_ids = {genre["id"] for genre in movies.get_all_genres()}
@@ -347,18 +363,7 @@ def create_review():
     if not movie:
         abort(403)
 
-    rating = request.form.get("rating", "").strip()
-    comment = request.form.get("comment", "").strip()
-    errors = []
-
-    if not re.search("^(10|[1-9])$", rating):
-        errors.append("VIRHE: arvosanan tulee olla kokonaisluku välillä 1-10")
-
-    if not comment:
-        errors.append("VIRHE: lisää kommentti")
-    elif len(comment) > 1000:
-        errors.append("VIRHE: kommentti voi olla enintään 1000 merkkiä")
-
+    rating, comment, errors = validate_review_data()
     filled_review = {"rating": rating, "comment": comment}
     if errors:
         flash_errors(errors)
@@ -373,6 +378,65 @@ def create_review():
 
     flash("Arvostelun lähettäminen onnistui", "success")
     return redirect("/movie/" + str(movie["id"]))
+
+@app.route("/edit_review/<int:review_id>")
+def edit_review(review_id):
+    """Show the form for editing an existing review."""
+    if "user_id" not in session:
+        return redirect_to_login()
+    review = reviews.get_review(review_id)
+    if not review:
+        abort(404)
+    if review["user_id"] != session["user_id"]:
+        abort(403)
+    filled = {"rating": review["rating"], "comment": review["comment"]}
+    return render_template("edit_review.html", review=review, filled=filled)
+
+@app.route("/update_review", methods=["POST"])
+def update_review():
+    """Update an existing review from the submitted form."""
+    require_login()
+    check_csrf()
+
+    review = reviews.get_review(request.form.get("review_id", ""))
+    if not review:
+        abort(404)
+    if review["user_id"] != session["user_id"]:
+        abort(403)
+
+    rating, comment, errors = validate_review_data()
+    filled = {"rating": rating, "comment": comment}
+
+    if errors:
+        flash_errors(errors)
+        return render_template("edit_review.html", review=review,
+                               filled=filled)
+
+    reviews.update_review(review["id"], int(rating), comment)
+    flash("Arvostelun muokkaaminen onnistui", "success")
+    return redirect("/movie/" + str(review["movie_id"]))
+
+@app.route("/remove_review/<int:review_id>", methods=["GET", "POST"])
+def remove_review(review_id):
+    """Show the removal confirmation or remove a review."""
+    if "user_id" not in session:
+        return redirect_to_login()
+
+    review = reviews.get_review(review_id)
+    if not review:
+        abort(404)
+    if review["user_id"] != session["user_id"]:
+        abort(403)
+
+    if request.method == "GET":
+        return render_template("remove_review.html", review=review)
+
+    check_csrf()
+    if "remove" in request.form:
+        reviews.remove_review(review_id)
+        flash("Arvostelun poistaminen onnistui", "success")
+        return redirect("/movie/" + str(review["movie_id"]))
+    return redirect("/movie/" + str(review["movie_id"]))
 
 @app.route("/register")
 def register():
