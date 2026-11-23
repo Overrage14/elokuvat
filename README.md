@@ -6,11 +6,12 @@ voivat jakaa tietoa elokuvista, luokitella niitä ja kirjoittaa arvosteluja.
 ## Sovelluksen toiminnot
 
 * Käyttäjä pystyy luomaan tunnuksen ja kirjautumaan sisään sovellukseen.
+  Uuden tunnuksen luomisen jälkeen käyttäjä kirjataan automaattisesti sisään.
 * Käyttäjä pystyy lisäämään elokuvia sekä muokkaamaan ja poistamaan niitä.
 * Käyttäjä näkee sovellukseen lisätyt elokuvat.
 * Käyttäjä pystyy etsimään elokuvia hakusanalla ja genren perusteella.
-* Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja ja käyttäjän
-  lisäämät elokuvat.
+* Sovelluksessa on käyttäjäsivut, jotka näyttävät tilastoja sekä käyttäjän
+  lisäämät ja arvostelemat elokuvat.
 * Käyttäjä pystyy valitsemaan elokuvalle yhden tai useamman luokittelun:
   * Genre: toiminta, animaatio, dokumentti, draama, kauhu, komedia,
     romanttinen, scifi, seikkailu tai trilleri
@@ -18,6 +19,7 @@ voivat jakaa tietoa elokuvista, luokitella niitä ja kirjoittaa arvosteluja.
 * Käyttäjä pystyy antamaan elokuvalle arvostelun, joka sisältää kommentin ja
   arvosanan. Yksi käyttäjä voi antaa yhdelle elokuvalle yhden arvostelun.
   Elokuvasta näytetään arvostelut ja keskimääräinen arvosana.
+* Käyttäjä pystyy muokkaamaan ja poistamaan omia arvostelujaan jälkikäteen.
 
 Pääasiallinen tietokohde on elokuva ja toissijainen tietokohde on elokuvan
 arvostelu.
@@ -79,15 +81,16 @@ $ flask run
 
 ## Sovelluksen testaaminen
 
-1. Luo tunnus ja kirjaudu sisään.
+1. Luo tunnus. Sovellus kirjaa sinut automaattisesti sisään.
 2. Lisää elokuva etusivun `Uusi elokuva` -linkin kautta. Valitse elokuvalle
    yksi tai useampi genre ja halutessasi ikäraja.
 3. Avaa elokuvan sivu ja anna sille arvostelu.
-4. Muokkaa ja poista lisäämäsi elokuva elokuvan sivun linkkien kautta.
-5. Etsi elokuvia hakusanalla tai genrellä etusivun `Etsi elokuva` -linkin
+4. Muokkaa tai poista oma arvostelusi elokuvan sivun linkkien kautta.
+5. Muokkaa ja poista lisäämäsi elokuva elokuvan sivun linkkien kautta.
+6. Etsi elokuvia hakusanalla tai genrellä etusivun `Etsi elokuva` -linkin
    kautta.
-6. Avaa käyttäjän sivu napsauttamalla käyttäjänimeä. Sivu näyttää käyttäjän
-   tilastot ja lisäämät elokuvat.
+7. Avaa käyttäjän sivu napsauttamalla käyttäjänimeä. Sivu näyttää käyttäjän
+   tilastot sekä lisäämät ja arvostelemat elokuvat.
 
 ## Suuri tietomäärä
 
@@ -173,8 +176,8 @@ QUERY PLAN
 ```
 
 Suuren tietomäärän käsittelyä helpottaa lisäksi sivutus: etusivu,
-hakutulokset ja käyttäjäsivun elokuvalista näyttävät kerralla vain 10 kohdetta,
-vaikka tietokannassa olisi satojatuhansia rivejä.
+hakutulokset sekä käyttäjäsivun elokuva- ja arvostelulistat näyttävät kerralla
+vain 10 kohdetta, vaikka tietokannassa olisi satojatuhansia rivejä.
 
 ## Koodin laatu
 

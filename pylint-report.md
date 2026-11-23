@@ -6,8 +6,8 @@ tarkastettu komennolla `pylint *.py` sovelluksen hakemistossa):
 ```
 ************* Module app
 app.py:22:0: C0103: Constant name "page_size" doesn't conform to UPPER_CASE naming style (invalid-name)
-app.py:309:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:413:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:334:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:489:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
 ************* Module config
 config.py:3:0: C0103: Constant name "secret_key" doesn't conform to UPPER_CASE naming style (invalid-name)
 ************* Module db
@@ -22,7 +22,7 @@ seed.py:8:0: C0103: Constant name "user_count" doesn't conform to UPPER_CASE nam
 seed.py:9:0: C0103: Constant name "movie_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 seed.py:10:0: C0103: Constant name "review_count" doesn't conform to UPPER_CASE naming style (invalid-name)
 
-Your code has been rated at 9.78/10
+Your code has been rated at 9.80/10
 ```
 
 Seuraavassa käyn läpi raportin ilmoitukset. Moni ilmoitus koskee samaa asiaa,
@@ -56,8 +56,8 @@ app.secret_key = config.secret_key
 Raportissa on seuraavat ilmoitukset:
 
 ```
-app.py:309:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-app.py:413:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:334:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+app.py:489:0: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
 ```
 
 Ensimmäinen ilmoitus koskee funktiota `remove_movie`:
