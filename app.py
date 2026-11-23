@@ -401,12 +401,15 @@ def create():
         return render_template("register.html", filled={"username": username})
 
     try:
-        users.create_user(username, password1)
+        user_id = users.create_user(username, password1)
     except sqlite3.IntegrityError:
         flash("VIRHE: tunnus on jo varattu", "error")
         return render_template("register.html", filled={"username": username})
 
-    flash("Tunnuksen luominen onnistui, voit nyt kirjautua sisään", "success")
+    session["user_id"] = user_id
+    session["username"] = username
+    session["csrf_token"] = secrets.token_hex(16)
+    flash("Tunnuksen luominen onnistui", "success")
     return redirect("/")
 
 @app.route("/login", methods=["GET", "POST"])

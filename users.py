@@ -35,10 +35,11 @@ def get_review_count(user_id):
     return db.query(sql, [user_id])[0][0]
 
 def create_user(username, password):
-    """Create a new user with a hashed password."""
+    """Create a new user with a hashed password and return the user ID."""
     password_hash = generate_password_hash(password)
     sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"
     db.execute(sql, [username, password_hash])
+    return db.last_insert_id()
 
 def check_login(username, password):
     """Return the user ID if the credentials are valid."""
