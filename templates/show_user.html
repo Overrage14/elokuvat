@@ -30,4 +30,31 @@
   Käyttäjä ei ole lisännyt elokuvia.
 </p>
 {% endif %}
+
+<h3>Arvostellut elokuvat</h3>
+
+{% if reviews %}
+<ul>
+{% for review in reviews %}
+  <li>
+    <a href="/movie/{{ review.movie_id }}">{{ review.title }}</a> ({{ review.year }})
+    &ndash; oma arvosana {{ review.rating }}/10
+  {% if session.user_id == user.id %}
+    <a href="/edit_review/{{ review.review_id }}">Muokkaa</a>
+    <a href="/remove_review/{{ review.review_id }}">Poista</a>
+  {% endif %}
+    <br />
+    {{ review.comment | show_lines }}
+  </li>
+{% endfor %}
+</ul>
+
+{% with page=review_page, page_count=review_page_count, page_url=review_page_url, page_param="review_page" %}
+{% include "pagination.html" %}
+{% endwith %}
+{% else %}
+<p>
+  Käyttäjä ei ole vielä arvostellut elokuvia.
+</p>
+{% endif %}
 {% endblock %}

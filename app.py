@@ -33,9 +33,9 @@ def prepare_session():
         session.clear()
         session["csrf_token"] = secrets.token_hex(16)
 
-def get_page(item_count):
+def get_page(item_count, page_param="page"):
     """Return the requested page number and the total number of pages."""
-    page = request.args.get("page", "1")
+    page = request.args.get(page_param, "1")
     if not page.isdigit():
         abort(403)
     page = int(page)
@@ -156,7 +156,7 @@ def index():
     all_movies = movies.get_movies(page, page_size)
     return render_template("index.html", movies=all_movies, page=page,
                            page_count=page_count, page_url="/?",
-                           movie_count=movie_count)
+                           page_param="page", movie_count=movie_count)
 
 @app.route("/user/<int:user_id>")
 def show_user(user_id):
@@ -168,10 +168,19 @@ def show_user(user_id):
     page, page_count = get_page(movie_count)
     user_movies = users.get_movies(user_id, page, page_size)
     review_count = users.get_review_count(user_id)
+    review_page, review_page_count = get_page(review_count, "review_page")
+    user_reviews = users.get_reviewed_movies(user_id, review_page, page_size)
+    base_url = "/user/" + str(user_id) + "?"
     return render_template("show_user.html", user=user, movies=user_movies,
-                           movie_count=movie_count, review_count=review_count,
-                           page=page, page_count=page_count,
-                           page_url="/user/" + str(user_id) + "?")
+                           reviews=user_reviews, movie_count=movie_count,
+                           review_count=review_count, page=page,
+                           page_count=page_count, page_param="page",
+                           page_url=base_url + "review_page=" +
+                           str(review_page) + "&",
+                           review_page=review_page,
+                           review_page_count=review_page_count,
+                           review_page_url=base_url + "page=" +
+                           str(page) + "&")
 
 @app.route("/find_movie")
 def find_movie():
@@ -205,7 +214,7 @@ def find_movie():
     return render_template("find_movie.html", query=query, results=results,
                            genres=genres, genre_id=genre_id, page=page,
                            page_count=page_count, page_url=page_url,
-                           movie_count=movie_count)
+                           page_param="page", movie_count=movie_count)
 
 @app.route("/movie/<int:movie_id>")
 def show_movie(movie_id):

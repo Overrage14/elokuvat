@@ -34,6 +34,18 @@ def get_review_count(user_id):
     sql = "SELECT COUNT(*) FROM reviews WHERE user_id = ?"
     return db.query(sql, [user_id])[0][0]
 
+def get_reviewed_movies(user_id, page, page_size):
+    """Return one page of a user's reviewed movies."""
+    offset = (page - 1) * page_size
+    sql = """SELECT movies.id movie_id, movies.title, movies.year,
+                    reviews.id review_id, reviews.rating, reviews.comment
+             FROM reviews
+             JOIN movies ON reviews.movie_id = movies.id
+             WHERE reviews.user_id = ?
+             ORDER BY reviews.id DESC
+             LIMIT ? OFFSET ?"""
+    return db.query(sql, [user_id, page_size, offset])
+
 def create_user(username, password):
     """Create a new user with a hashed password and return the user ID."""
     password_hash = generate_password_hash(password)
