@@ -345,13 +345,12 @@ def remove_movie(movie_id):
     if request.method == "GET":
         return render_template("remove_movie.html", movie=movie)
 
-    if request.method == "POST":
-        check_csrf()
-        if "remove" in request.form:
-            movies.remove_movie(movie_id)
-            flash("Elokuvan poistaminen onnistui", "success")
-            return redirect("/")
-        return redirect("/movie/" + str(movie_id))
+    check_csrf()
+    if "remove" in request.form:
+        movies.remove_movie(movie_id)
+        flash("Elokuvan poistaminen onnistui", "success")
+        return redirect("/")
+    return redirect("/movie/" + str(movie_id))
 
 @app.route("/create_review", methods=["POST"])
 def create_review():
@@ -494,33 +493,32 @@ def login():
         return render_template("login.html", filled={},
                                next_page=next_page)
 
-    if request.method == "POST":
-        check_csrf()
+    check_csrf()
 
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
-        errors = []
+    username = request.form.get("username", "").strip()
+    password = request.form.get("password", "")
+    errors = []
 
-        if not username:
-            errors.append("VIRHE: lisää tunnus")
-        if not password:
-            errors.append("VIRHE: lisää salasana")
+    if not username:
+        errors.append("VIRHE: lisää tunnus")
+    if not password:
+        errors.append("VIRHE: lisää salasana")
 
-        if errors:
-            flash_errors(errors)
-            return render_template("login.html",
-                                   filled={"username": username},
-                                   next_page=next_page)
-
-        user_id = users.check_login(username, password)
-        if user_id:
-            session["user_id"] = user_id
-            session["username"] = username
-            session["csrf_token"] = secrets.token_hex(16)
-            return redirect(next_page)
-        flash("VIRHE: väärä tunnus tai salasana", "error")
-        return render_template("login.html", filled={"username": username},
+    if errors:
+        flash_errors(errors)
+        return render_template("login.html",
+                               filled={"username": username},
                                next_page=next_page)
+
+    user_id = users.check_login(username, password)
+    if user_id:
+        session["user_id"] = user_id
+        session["username"] = username
+        session["csrf_token"] = secrets.token_hex(16)
+        return redirect(next_page)
+    flash("VIRHE: väärä tunnus tai salasana", "error")
+    return render_template("login.html", filled={"username": username},
+                           next_page=next_page)
 
 @app.route("/logout")
 def logout():
