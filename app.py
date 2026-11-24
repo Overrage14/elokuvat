@@ -4,7 +4,8 @@ import argparse
 import re
 import secrets
 import sqlite3
-from urllib.parse import quote
+from functools import wraps
+from urllib.parse import quote, urlsplit
 
 from flask import Flask
 from flask import abort, flash, redirect, render_template, request, session
@@ -44,15 +45,36 @@ def get_page(item_count, page_param="page"):
         abort(404)
     return page, page_count
 
-def require_login():
-    """Abort the request if the user is not logged in."""
-    if "user_id" not in session:
-        abort(403)
+def get_local_referrer():
+    """Return the local path of the referring page."""
+    referrer = request.referrer
+    if not referrer:
+        return "/"
+    parts = urlsplit(referrer)
+    if parts.netloc and parts.netloc != request.host:
+        return "/"
+    path = parts.path or "/"
+    if parts.query:
+        path += "?" + parts.query
+    return path
 
 def redirect_to_login():
     """Redirect to login and remember the requested page."""
     flash("Kirjaudu sisään jatkaaksesi.", "info")
-    return redirect("/login?next_page=" + quote(request.path))
+    next_page = request.path
+    if request.method == "POST":
+        next_page = get_local_referrer()
+    return redirect("/login?next_page=" + quote(next_page))
+
+def login_required(view):
+    """Redirect to login if the user is not logged in."""
+    @wraps(view)
+    def wrapped_view(*args, **kwargs):
+        """Run the view if the user is logged in."""
+        if "user_id" not in session:
+            return redirect_to_login()
+        return view(*args, **kwargs)
+    return wrapped_view
 
 def get_next_page(default="/"):
     """Return a safe local URL to redirect to after login."""
@@ -241,10 +263,9 @@ def show_movie(movie_id):
     return render_movie_page(movie)
 
 @app.route("/new_movie")
+@login_required
 def new_movie():
     """Show the form for adding a new movie."""
-    if "user_id" not in session:
-        return redirect_to_login()
     genres = movies.get_all_genres()
     age_ratings = movies.get_all_age_ratings()
     return render_template("new_movie.html", genres=genres,
@@ -252,9 +273,9 @@ def new_movie():
                            genre_ids=[], age_rating_id=None)
 
 @app.route("/create_movie", methods=["POST"])
+@login_required
 def create_movie():
     """Create a new movie from the submitted form."""
-    require_login()
     check_csrf()
 
     title, year, description, errors = validate_movie_data()
@@ -277,10 +298,9 @@ def create_movie():
     return redirect("/movie/" + str(movie_id))
 
 @app.route("/edit_movie/<int:movie_id>")
+@login_required
 def edit_movie(movie_id):
     """Show the form for editing an existing movie."""
-    if "user_id" not in session:
-        return redirect_to_login()
     movie = movies.get_movie(movie_id)
     if not movie:
         abort(404)
@@ -300,9 +320,9 @@ def edit_movie(movie_id):
                            age_rating_id=age_rating_id, filled=filled)
 
 @app.route("/update_movie", methods=["POST"])
+@login_required
 def update_movie():
     """Update an existing movie from the submitted form."""
-    require_login()
     check_csrf()
 
     movie = movies.get_movie(request.form.get("movie_id", ""))
@@ -331,11 +351,9 @@ def update_movie():
     return redirect("/movie/" + str(movie["id"]))
 
 @app.route("/remove_movie/<int:movie_id>", methods=["GET", "POST"])
+@login_required
 def remove_movie(movie_id):
     """Show the removal confirmation or remove a movie."""
-    if "user_id" not in session:
-        return redirect_to_login()
-
     movie = movies.get_movie(movie_id)
     if not movie:
         abort(404)
@@ -353,9 +371,9 @@ def remove_movie(movie_id):
     return redirect("/movie/" + str(movie_id))
 
 @app.route("/create_review", methods=["POST"])
+@login_required
 def create_review():
     """Create a review for a movie."""
-    require_login()
     check_csrf()
 
     movie = movies.get_movie(request.form.get("movie_id", ""))
@@ -379,10 +397,9 @@ def create_review():
     return redirect("/movie/" + str(movie["id"]))
 
 @app.route("/edit_review/<int:review_id>")
+@login_required
 def edit_review(review_id):
     """Show the form for editing an existing review."""
-    if "user_id" not in session:
-        return redirect_to_login()
     review = reviews.get_review(review_id)
     if not review:
         abort(404)
@@ -392,9 +409,9 @@ def edit_review(review_id):
     return render_template("edit_review.html", review=review, filled=filled)
 
 @app.route("/update_review", methods=["POST"])
+@login_required
 def update_review():
     """Update an existing review from the submitted form."""
-    require_login()
     check_csrf()
 
     review = reviews.get_review(request.form.get("review_id", ""))
@@ -416,11 +433,9 @@ def update_review():
     return redirect("/movie/" + str(review["movie_id"]))
 
 @app.route("/remove_review/<int:review_id>", methods=["GET", "POST"])
+@login_required
 def remove_review(review_id):
     """Show the removal confirmation or remove a review."""
-    if "user_id" not in session:
-        return redirect_to_login()
-
     review = reviews.get_review(review_id)
     if not review:
         abort(404)
