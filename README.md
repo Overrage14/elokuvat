@@ -45,12 +45,12 @@ arvostelu.
 
 | Tiedosto | Kuvaus |
 |---|---|
-| `app.py` | Flask-sovellus, reitit ja lomakkeiden käsittely |
+| `app.py` | Flask-sovellus, reitit ja sivujen renderöinti |
 | `config.py` | Sovelluksen salainen avain |
 | `db.py` | Tietokantayhteydet ja SQL-kyselyjen suorittaminen |
-| `movies.py` | Elokuviin ja luokitteluihin liittyvät tietokantaoperaatiot |
-| `reviews.py` | Arvosteluihin liittyvät tietokantaoperaatiot |
-| `users.py` | Käyttäjiin ja kirjautumiseen liittyvät tietokantaoperaatiot |
+| `movies.py` | Elokuviin, luokitteluihin ja elokuvalomakkeen validointiin liittyvät operaatiot |
+| `reviews.py` | Arvosteluihin ja arvostelulomakkeen validointiin liittyvät operaatiot |
+| `users.py` | Käyttäjiin, kirjautumiseen ja käyttäjän sisältöihin liittyvät operaatiot |
 | `schema.sql` | Tietokannan taulut ja indeksit |
 | `init.sql` | Genrejen ja ikärajojen alkutiedot |
 | `seed.py` | Suuren testiaineiston luominen |
