@@ -1,5 +1,9 @@
 """Database operations for movies and their classifications."""
 
+import re
+
+from flask import abort
+
 import db
 
 def get_all_genres():
@@ -11,6 +15,52 @@ def get_all_age_ratings():
     """Return all age ratings ordered by ID."""
     sql = "SELECT id, name FROM age_ratings ORDER BY id"
     return db.query(sql)
+
+def validate_movie_data(form):
+    """Validate movie form data and return values and errors."""
+    title = form.get("title", "").strip()
+    year = form.get("year", "").strip()
+    description = form.get("description", "").strip()
+    errors = []
+
+    if not title:
+        errors.append("VIRHE: lisää elokuvan nimi")
+    elif len(title) > 50:
+        errors.append("VIRHE: elokuvan nimi voi olla enintään 50 merkkiä")
+
+    if not re.search("^[0-9]{4}$", year):
+        errors.append("VIRHE: lisää kelvollinen valmistumisvuosi (1888-2100)")
+    elif not 1888 <= int(year) <= 2100:
+        errors.append("VIRHE: valmistumisvuoden tulee olla välillä 1888-2100")
+
+    if not description:
+        errors.append("VIRHE: lisää kuvaus")
+    elif len(description) > 1000:
+        errors.append("VIRHE: kuvaus voi olla enintään 1000 merkkiä")
+
+    return title, year, description, errors
+
+def get_selected_genres(form):
+    """Return the validated genre IDs selected in the form."""
+    valid_ids = {genre["id"] for genre in get_all_genres()}
+    genre_ids = []
+    for entry in form.getlist("genres"):
+        entry = entry.strip()
+        if entry:
+            if not entry.isdigit() or int(entry) not in valid_ids:
+                abort(403)
+            genre_ids.append(int(entry))
+    return genre_ids
+
+def get_selected_age_rating(form):
+    """Return the validated age rating selected in the form."""
+    valid_ids = {age_rating["id"] for age_rating in get_all_age_ratings()}
+    entry = form.get("age_rating", "").strip()
+    if not entry:
+        return None
+    if not entry.isdigit() or int(entry) not in valid_ids:
+        abort(403)
+    return int(entry)
 
 def get_movie(movie_id):
     """Return a movie with its owner, or None if not found."""

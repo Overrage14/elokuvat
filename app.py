@@ -1,7 +1,6 @@
 """Movie database web application built with Flask and SQLite."""
 
 import argparse
-import re
 import secrets
 import sqlite3
 from functools import wraps
@@ -104,70 +103,6 @@ def show_lines(content):
     content = str(markupsafe.escape(content))
     content = content.replace("\n", "<br />")
     return markupsafe.Markup(content)
-
-def validate_movie_data():
-    """Validate movie form data and return values and errors."""
-    title = request.form.get("title", "").strip()
-    year = request.form.get("year", "").strip()
-    description = request.form.get("description", "").strip()
-    errors = []
-
-    if not title:
-        errors.append("VIRHE: lisää elokuvan nimi")
-    elif len(title) > 50:
-        errors.append("VIRHE: elokuvan nimi voi olla enintään 50 merkkiä")
-
-    if not re.search("^[0-9]{4}$", year):
-        errors.append("VIRHE: lisää kelvollinen valmistumisvuosi (1888-2100)")
-    elif not 1888 <= int(year) <= 2100:
-        errors.append("VIRHE: valmistumisvuoden tulee olla välillä 1888-2100")
-
-    if not description:
-        errors.append("VIRHE: lisää kuvaus")
-    elif len(description) > 1000:
-        errors.append("VIRHE: kuvaus voi olla enintään 1000 merkkiä")
-
-    return title, year, description, errors
-
-def validate_review_data():
-    """Validate review form data and return values and errors."""
-    rating = request.form.get("rating", "").strip()
-    comment = request.form.get("comment", "").strip()
-    errors = []
-
-    if not re.search("^(10|[1-9])$", rating):
-        errors.append("VIRHE: arvosanan tulee olla kokonaisluku välillä 1-10")
-
-    if not comment:
-        errors.append("VIRHE: lisää kommentti")
-    elif len(comment) > 1000:
-        errors.append("VIRHE: kommentti voi olla enintään 1000 merkkiä")
-
-    return rating, comment, errors
-
-def get_selected_genres():
-    """Return the validated genre IDs selected in the form."""
-    valid_ids = {genre["id"] for genre in movies.get_all_genres()}
-    genre_ids = []
-    for entry in request.form.getlist("genres"):
-        entry = entry.strip()
-        if entry:
-            if not entry.isdigit() or int(entry) not in valid_ids:
-                abort(403)
-            genre_ids.append(int(entry))
-    return genre_ids
-
-def get_selected_age_rating():
-    """Return the validated age rating selected in the form."""
-    valid_ids = {
-        age_rating["id"] for age_rating in movies.get_all_age_ratings()
-    }
-    entry = request.form.get("age_rating", "").strip()
-    if not entry:
-        return None
-    if not entry.isdigit() or int(entry) not in valid_ids:
-        abort(403)
-    return int(entry)
 
 def render_movie_page(movie, filled_review=None):
     """Render a movie page with classifications and reviews."""
@@ -278,9 +213,10 @@ def create_movie():
     """Create a new movie from the submitted form."""
     check_csrf()
 
-    title, year, description, errors = validate_movie_data()
-    genre_ids = get_selected_genres()
-    age_rating_id = get_selected_age_rating()
+    title, year, description, errors = movies.validate_movie_data(
+        request.form)
+    genre_ids = movies.get_selected_genres(request.form)
+    age_rating_id = movies.get_selected_age_rating(request.form)
 
     if errors:
         flash_errors(errors)
@@ -331,9 +267,10 @@ def update_movie():
     if movie["user_id"] != session["user_id"]:
         abort(403)
 
-    title, year, description, errors = validate_movie_data()
-    genre_ids = get_selected_genres()
-    age_rating_id = get_selected_age_rating()
+    title, year, description, errors = movies.validate_movie_data(
+        request.form)
+    genre_ids = movies.get_selected_genres(request.form)
+    age_rating_id = movies.get_selected_age_rating(request.form)
 
     if errors:
         flash_errors(errors)
@@ -380,7 +317,8 @@ def create_review():
     if not movie:
         abort(403)
 
-    rating, comment, errors = validate_review_data()
+    rating, comment, errors = reviews.validate_review_data(
+        request.form)
     filled_review = {"rating": rating, "comment": comment}
     if errors:
         flash_errors(errors)
@@ -420,7 +358,8 @@ def update_review():
     if review["user_id"] != session["user_id"]:
         abort(403)
 
-    rating, comment, errors = validate_review_data()
+    rating, comment, errors = reviews.validate_review_data(
+        request.form)
     filled = {"rating": rating, "comment": comment}
 
     if errors:

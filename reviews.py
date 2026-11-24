@@ -1,5 +1,7 @@
 """Database operations for movie reviews."""
 
+import re
+
 import db
 
 def get_reviews(movie_id):
@@ -30,6 +32,22 @@ def get_review(review_id):
              WHERE reviews.movie_id = movies.id AND reviews.id = ?"""
     result = db.query(sql, [review_id])
     return result[0] if result else None
+
+def validate_review_data(form):
+    """Validate review form data and return values and errors."""
+    rating = form.get("rating", "").strip()
+    comment = form.get("comment", "").strip()
+    errors = []
+
+    if not re.search("^(10|[1-9])$", rating):
+        errors.append("VIRHE: arvosanan tulee olla kokonaisluku välillä 1-10")
+
+    if not comment:
+        errors.append("VIRHE: lisää kommentti")
+    elif len(comment) > 1000:
+        errors.append("VIRHE: kommentti voi olla enintään 1000 merkkiä")
+
+    return rating, comment, errors
 
 def add_review(movie_id, user_id, rating, comment):
     """Add a review to a movie."""
